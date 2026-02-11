@@ -27,10 +27,10 @@
 
     <style>
         :root {
-            /* Day Theme (Sakura) */
+            /* Day Theme (Sakura - Default) */
             --bg-color: #FFF1F2;
             --text-color: #4A044E;
-            --card-bg: rgba(255, 255, 255, 0.7);
+            --card-bg: rgba(255, 255, 255, 0.85);
             --card-border: rgba(251, 113, 133, 0.2);
             --accent-primary: #db2777;
             --accent-secondary: #f472b6;
@@ -41,7 +41,7 @@
             /* Night Theme */
             --bg-color: #0F172A;
             --text-color: #F1F5F9;
-            --card-bg: rgba(30, 41, 59, 0.6);
+            --card-bg: rgba(30, 41, 59, 0.75);
             --card-border: rgba(255, 255, 255, 0.05);
             --accent-primary: #6366f1;
             --accent-secondary: #38bdf8;
@@ -168,6 +168,17 @@
             cursor: pointer;
             background: rgba(150, 150, 150, 0.3);
             border-radius: 2px;
+        }
+        
+        /* Hidden YouTube Iframe */
+        #youtube-player-container {
+            position: fixed;
+            bottom: -100px;
+            left: 0;
+            width: 1px;
+            height: 1px;
+            opacity: 0;
+            pointer-events: none;
         }
     </style>
 </head>
@@ -402,7 +413,7 @@
                     </div>
                     <div>
                         <span class="font-bold text-sm block">Researcher haneulssi</span>
-                        <span class="text-[10px] opacity-70 block font-bold tracking-wide">AI Assistant</span>
+                        <span class="text-[10px] opacity-70 block font-bold tracking-wide">Secure AI Assistant</span>
                     </div>
                 </div>
             </div>
@@ -413,12 +424,12 @@
                     <div class="glass-panel p-3.5 rounded-tl-none text-xs opacity-90 leading-relaxed max-w-[88%] shadow-sm">
                         안녕하세요! <strong>Researcher haneulssi</strong>입니다.<br><br>
                         2025-2026 연구노트 내용을 바탕으로 답변해 드립니다.<br>
-                        궁금한 점을 아래 칩에서 선택하거나 직접 입력해주세요! 📚
+                        궁금한 점을 아래 칩에서 선택해주세요! 📚 (API Free Mode)
                     </div>
                 </div>
             </div>
             
-            <!-- Quick Chips & Input Area -->
+            <!-- Quick Chips -->
             <div class="p-4 border-t border-gray-500/10 bg-gray-500/5 backdrop-blur-md flex flex-col gap-3">
                 <p class="text-[10px] opacity-50 mb-3 font-bold ml-1 uppercase tracking-wider">Tap to ask:</p>
                 <div class="flex flex-col gap-2.5">
@@ -433,14 +444,6 @@
                         <button onclick="askAI('gender')" class="suggestion-chip flex-shrink-0 px-3 py-2 bg-blue-500/10 hover:bg-blue-500/20 text-[11px] font-bold rounded-xl border border-blue-500/20 text-blue-500">👫 성별 차이</button>
                         <button onclick="askAI('conclusion')" class="suggestion-chip flex-shrink-0 px-3 py-2 bg-slate-500/10 hover:bg-slate-500/20 text-[11px] font-bold rounded-xl border border-slate-500/20 opacity-70">📑 결론 요약</button>
                     </div>
-                </div>
-                
-                <!-- Custom Input -->
-                <div class="relative mt-1">
-                    <input type="text" id="user-input" placeholder="질문을 입력하세요... (예: 믹스커피 많이 마시면?)" class="w-full bg-white/50 border border-indigo-200 rounded-xl pl-4 pr-12 py-3 text-xs focus:ring-2 focus:ring-indigo-300 focus:outline-none transition-all placeholder-gray-400" onkeypress="if(event.key==='Enter') sendUserQuery()">
-                    <button onclick="sendUserQuery()" class="absolute right-2 top-1.5 p-1.5 bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg transition active:scale-95">
-                        <i class="ph-bold ph-paper-plane-right text-sm"></i>
-                    </button>
                 </div>
             </div>
         </section>
@@ -460,20 +463,17 @@
         </div>
         <div class="flex flex-col">
             <span class="text-[10px] font-bold opacity-80" id="music-title">Music Off</span>
-            <span class="text-[8px] opacity-50" id="music-genre">Select Genre</span>
+            <span class="text-[8px] opacity-50" id="music-genre">Study Playlist</span>
         </div>
         <div class="flex gap-2 ml-2">
-            <button onclick="playMusic('spring')" class="text-lg hover:scale-110 transition active:scale-95" title="Vivaldi - Spring">🎻</button>
-            <button onclick="playMusic('mozart')" class="text-lg hover:scale-110 transition active:scale-95" title="Mozart - Nachtmusik">🎹</button>
-            <button onclick="stopMusic()" class="text-lg hover:scale-110 transition active:scale-95 text-rose-400" title="Stop">⏹️</button>
+            <button onclick="playMusic()" class="text-lg hover:scale-110 transition active:scale-95 text-emerald-400" title="Play">▶️</button>
+            <button onclick="stopMusic()" class="text-lg hover:scale-110 transition active:scale-95 text-rose-400" title="Pause">⏸️</button>
         </div>
-        <audio id="bgm-player" loop></audio>
+        <!-- Hidden YouTube Player -->
+        <div id="youtube-player" style="position: absolute; opacity: 0; width: 1px; height: 1px; pointer-events: none;"></div>
     </div>
 
     <script>
-        // --- Configuration ---
-        const apiKey = ""; // API Key injected by environment
-
         // --- Theme Logic ---
         let isDarkMode = false; 
         const body = document.body;
@@ -495,71 +495,56 @@
             initBubbleChart();
         }
 
-        // --- Music Player Logic ---
-        const audio = document.getElementById('bgm-player');
+        // --- Music Player Logic (YouTube API) ---
         const disc = document.getElementById('disc-icon');
         const musicTitle = document.getElementById('music-title');
-        const musicGenre = document.getElementById('music-genre');
         const musicPlayerDiv = document.querySelector('.music-player');
+        
+        // Load YouTube API
+        var tag = document.createElement('script');
+        tag.src = "https://www.youtube.com/iframe_api";
+        var firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
-        // Using reliable MP3/OGG links.
-        const tracks = {
-            'spring': { src: "https://upload.wikimedia.org/wikipedia/commons/3/3c/Antonio_Vivaldi_-_Spring_mvt_1_Allegro_-_John_Harrison_violin.ogg", title: "Vivaldi: Spring", genre: "Upbeat Classic" },
-            'mozart': { src: "https://upload.wikimedia.org/wikipedia/commons/2/28/Wolfgang_Amadeus_Mozart_-_Eine_kleine_Nachtmusik_-_1._Allegro.ogg", title: "Mozart: Nachtmusik", genre: "Energetic Classic" } 
-        };
+        var player;
+        function onYouTubeIframeAPIReady() {
+            player = new YT.Player('youtube-player', {
+                height: '0',
+                width: '0',
+                videoId: 'Oeda7KVkFog', // User Provided ID
+                events: {
+                    'onStateChange': onPlayerStateChange
+                }
+            });
+        }
 
-        function playMusic(type) {
-            audio.src = tracks[type].src;
-            audio.volume = 0.5; // Set volume to 50%
-            musicTitle.innerText = "Loading...";
-            musicGenre.innerText = tracks[type].genre;
-            
-            audio.oncanplay = () => {
-                musicTitle.innerText = tracks[type].title;
+        function onPlayerStateChange(event) {
+            if (event.data == YT.PlayerState.PLAYING) {
                 musicPlayerDiv.classList.add('playing');
                 disc.style.animationPlayState = 'running';
-            };
+                musicTitle.innerText = "Study Playlist";
+            } else {
+                musicPlayerDiv.classList.remove('playing');
+                disc.style.animationPlayState = 'paused';
+            }
+        }
 
-            const playPromise = audio.play();
-            if (playPromise !== undefined) {
-                playPromise.then(() => {
-                    // Success
-                    musicTitle.innerText = tracks[type].title;
-                    musicPlayerDiv.classList.add('playing');
-                    disc.style.animationPlayState = 'running';
-                })
-                .catch(error => {
-                    console.log("Audio Error:", error);
-                    // Usually this catches user interaction policy errors
-                    // No alert needed, as this function is called via onclick
-                });
+        function playMusic() {
+            if (player && player.playVideo) {
+                player.playVideo();
+            } else {
+                // Wait for API ready
+                setTimeout(playMusic, 1000);
             }
         }
 
         function stopMusic() {
-            audio.pause();
-            musicTitle.innerText = "Music Paused";
-            musicPlayerDiv.classList.remove('playing');
-            disc.style.animationPlayState = 'paused';
+            if (player && player.pauseVideo) {
+                player.pauseVideo();
+            }
         }
 
-        // --- AI Logic (Real Gemini API) ---
-        const systemPrompt = `
-            당신은 '조하늘 연구원(Researcher Haneulssi)'의 AI 어시스턴트입니다.
-            2025년 9월부터 2026년 1월까지 작성된 연구노트와 선행 논문을 바탕으로 답변하세요.
-            
-            [핵심 연구 내용]
-            1. 주제: 한국 성인의 음료 섭취(커피, 차, 가당음료)가 신장 기능(eGFR)에 미치는 영향.
-            2. 데이터: KNHANES 제9기 (2022-2024). 대상: 19-64세 성인.
-            3. 가설: 블랙커피는 항산화 성분으로 신장에 긍정적이나, 믹스커피(설탕/프림)는 대사 위험으로 부정적일 것임.
-            4. 차(Tea): 오전 시간대(새벽~정오) 섭취가 신장 대사 리듬과 일치하여 eGFR 유지에 가장 효과적임.
-            5. 당뇨 환자: 기상 후 1시간 이내 커피 섭취가 신장 보호에 유리할 수 있음 (Tang et al. 2024). 단, 믹스커피는 금물.
-            
-            답변 스타일: 전문적이지만 친절하게, 연구원 조하늘의 관점에서 설명하세요. 한국어를 사용하세요.
-            이모지를 적절히 사용하여 가독성을 높이세요.
-        `;
-
-        // Local Fallback Knowledge Base (For when API fails)
+        // --- AI Logic (Local Knowledge Base - No API Key) ---
         const knowledgeBase = {
             'method': `<strong>[연구 설계]</strong> KNHANES 제9기(2022-2024) 데이터를 활용하며, 만 19-64세 성인을 대상으로 합니다. 신장 기능은 CKD-EPI (2021) 공식을 통해 산출된 eGFR로 평가하며, 복합표본 다중회귀분석을 수행합니다.`,
             'coffee_diff': `<strong>[커피 유형별 차이]</strong> 블랙커피는 항산화 성분(폴리페놀)으로 인해 신장 보호 효과가 기대되나, 믹스커피는 설탕과 프림으로 인한 대사증후군 위험 증가로 신장에 부정적일 수 있다는 가설을 검증합니다.`,
@@ -570,72 +555,19 @@
             'conclusion': `<strong>[잠정 결론]</strong> '적절한 블랙커피(하루 2-3잔)'와 '오전의 차 한 잔'은 신장 건강에 유익할 수 있으나, 가당음료와 믹스커피는 명백한 위험 인자입니다.`
         };
 
-        async function callGemini(query) {
-            try {
-                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        contents: [{ parts: [{ text: query }] }],
-                        systemInstruction: { parts: [{ text: systemPrompt }] }
-                    })
-                });
-                
-                const data = await response.json();
-                if (data.candidates && data.candidates[0].content) {
-                    return marked.parse(data.candidates[0].content.parts[0].text);
-                } else {
-                    return null; // Trigger fallback
-                }
-            } catch (e) {
-                console.error(e);
-                return null; // Trigger fallback
-            }
-        }
-
-        async function askAI(key) {
+        function askAI(key) {
+            const chatWindow = document.getElementById('chat-window');
             const userTexts = {
                 'method': "연구 데이터와 방법론은?", 'coffee_diff': "믹스커피와 블랙커피의 차이는?", 'tea_timing': "차는 언제 마시는 게 좋아?",
                 'mechanism': "어떤 원리로 신장에 좋아?", 'diabetes': "당뇨 환자에게는 어때?", 'gender': "남녀 차이가 있어?",
                 'conclusion': "그래서 결론이 뭐야?"
             };
             
-            const query = userTexts[key] || key;
-            addBubble(query, "user");
-            const loadingId = showLoading();
-            
-            // Try API first, then Fallback
-            let reply = await callGemini(query);
-            if (!reply && knowledgeBase[key]) {
-                reply = knowledgeBase[key]; // Use local fallback
-            } else if (!reply) {
-                reply = "죄송합니다. 현재 AI 연결이 원활하지 않습니다. 잠시 후 다시 시도해주세요.";
-            }
-            
-            removeLoading(loadingId);
-            addBubble(reply, "ai");
-        }
-
-        async function sendUserQuery() {
-            const input = document.getElementById('user-input');
-            const text = input.value.trim();
-            if(!text) return;
-            
-            addBubble(text, "user");
-            input.value = "";
-            const loadingId = showLoading();
-            
-            let reply = await callGemini(text);
-            if (!reply) {
-                // Simple keyword matching fallback
-                if(text.includes("당뇨")) reply = knowledgeBase['diabetes'];
-                else if(text.includes("믹스") || text.includes("블랙")) reply = knowledgeBase['coffee_diff'];
-                else if(text.includes("차") || text.includes("녹차")) reply = knowledgeBase['tea_timing'];
-                else reply = "죄송합니다. AI 연결 문제로 답변을 생성할 수 없습니다.";
-            }
-            
-            removeLoading(loadingId);
-            addBubble(reply, "ai");
+            addBubble(userTexts[key] || "질문", "user");
+            simulateTyping(() => {
+                const reply = knowledgeBase[key];
+                addBubble(reply, "ai");
+            });
         }
 
         function addBubble(text, type) {
@@ -649,7 +581,7 @@
             const html = `
                 <div class="flex gap-3 chat-bubble ${align}">
                     ${icon}
-                    <div class="${bg} p-3.5 rounded-2xl ${radius} max-w-[88%] ${isUser ? 'text-xs font-medium' : ''} prose prose-invert prose-p:my-1 prose-headings:my-2">
+                    <div class="${bg} p-3.5 rounded-2xl ${radius} max-w-[88%] ${isUser ? 'text-xs font-medium' : ''}">
                         ${text}
                     </div>
                 </div>`;
@@ -657,7 +589,7 @@
             chatWindow.scrollTop = chatWindow.scrollHeight;
         }
 
-        function showLoading() {
+        function simulateTyping(callback) {
             const chatWindow = document.getElementById('chat-window');
             const id = 'typing-' + Date.now();
             chatWindow.insertAdjacentHTML('beforeend', `
@@ -672,12 +604,10 @@
                     </div>
                 </div>`);
             chatWindow.scrollTop = chatWindow.scrollHeight;
-            return id;
-        }
-
-        function removeLoading(id) {
-            const el = document.getElementById(id);
-            if(el) el.remove();
+            setTimeout(() => {
+                document.getElementById(id).remove();
+                callback();
+            }, 600 + Math.random() * 400);
         }
 
         // --- Simulator Logic ---
@@ -725,9 +655,8 @@
 
         function animateChar(type) {
             const char = document.getElementById('kidney-char');
-            // Reset to allow re-triggering
             char.style.animation = 'none';
-            void char.offsetWidth; // Trigger reflow
+            void char.offsetWidth; 
             char.style.animation = null; 
             
             char.classList.remove('animate__headShake', 'animate__rubberBand', 'animate__wobble');
@@ -745,11 +674,9 @@
             if(document.getElementById('check-diabetes').checked) score -= (counts.mix*2 + counts.ssb*5);
             score = Math.max(0, Math.min(100, score));
             
-            // Find state based on updated score
-            // Fixed Logic: Check if score is LESS than limit
-            let s = states[3]; // Default to optimal
-            for (let i = 0; i < states.length; i++) {
-                if (score < states[i].limit) {
+            let s = states[3];
+            for(let i=0; i<states.length; i++) {
+                if(score < states[i].limit) {
                     s = states[i];
                     break;
                 }
@@ -758,7 +685,7 @@
             document.getElementById('score-val').innerText = score + "점";
             document.getElementById('status-badge').innerText = s.title;
             document.getElementById('status-desc').innerText = s.desc;
-            document.getElementById('kidney-char').innerText = s.icon; // Update Emoji
+            document.getElementById('kidney-char').innerText = s.icon; 
             
             const bar = document.getElementById('health-bar');
             bar.style.width = `${score}%`;
