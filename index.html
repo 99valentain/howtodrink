@@ -420,20 +420,19 @@
             
             <!-- Quick Chips & Input Area -->
             <div class="p-4 border-t border-gray-500/10 bg-gray-500/5 backdrop-blur-md flex flex-col gap-3">
-                <p class="text-[10px] opacity-50 font-bold ml-1 uppercase tracking-wider">Quick Q&A:</p>
-                <!-- Chips -->
+                <p class="text-[10px] opacity-50 font-bold ml-1 uppercase tracking-wider">Tap to ask:</p>
                 <div class="flex flex-col gap-2.5">
                     <div class="flex gap-2 overflow-x-auto hide-scrollbar pb-1">
                         <button onclick="askAI('method')" class="suggestion-chip flex-shrink-0 px-3 py-2 bg-indigo-500/10 hover:bg-indigo-500/20 text-[11px] font-bold rounded-xl border border-indigo-500/20 text-indigo-500">🔬 연구 방법</button>
                         <button onclick="askAI('coffee_diff')" class="suggestion-chip flex-shrink-0 px-3 py-2 bg-amber-500/10 hover:bg-amber-500/20 text-[11px] font-bold rounded-xl border border-amber-500/20 text-amber-500">☕ 믹스 vs 블랙</button>
                         <button onclick="askAI('tea_timing')" class="suggestion-chip flex-shrink-0 px-3 py-2 bg-emerald-500/10 hover:bg-emerald-500/20 text-[11px] font-bold rounded-xl border border-emerald-500/20 text-emerald-500">⏰ 차 섭취 타이밍</button>
-                        <button onclick="askAI('dose')" class="suggestion-chip flex-shrink-0 px-3 py-2 bg-blue-500/10 hover:bg-blue-500/20 text-[11px] font-bold rounded-xl border border-blue-500/20 text-blue-500">🥤 권장 섭취량</button>
                     </div>
                     <div class="flex gap-2 overflow-x-auto hide-scrollbar pb-1">
                         <button onclick="askAI('mechanism')" class="suggestion-chip flex-shrink-0 px-3 py-2 bg-purple-500/10 hover:bg-purple-500/20 text-[11px] font-bold rounded-xl border border-purple-500/20 text-purple-500">🧬 작용 기전</button>
-                        <button onclick="askAI('diabetes')" class="suggestion-chip flex-shrink-0 px-3 py-2 bg-rose-500/10 hover:bg-rose-500/20 text-[11px] font-bold rounded-xl border border-rose-500/20 text-rose-500">🩸 당뇨 환자</button>
-                        <button onclick="askAI('green_tea')" class="suggestion-chip flex-shrink-0 px-3 py-2 bg-teal-500/10 hover:bg-teal-500/20 text-[11px] font-bold rounded-xl border border-teal-500/20 text-teal-500">🍵 녹차의 효과</button>
-                        <button onclick="askAI('genetics')" class="suggestion-chip flex-shrink-0 px-3 py-2 bg-slate-500/10 hover:bg-slate-500/20 text-[11px] font-bold rounded-xl border border-slate-500/20 opacity-70">🧬 유전적 요인</button>
+                        <button onclick="askAI('diabetes')" class="suggestion-chip flex-shrink-0 px-3 py-2 bg-rose-500/10 hover:bg-rose-500/20 text-[11px] font-bold rounded-xl border border-rose-500/20 text-rose-500">🩸 당뇨 환자 위험성</button>
+                        <button onclick="askAI('gender')" class="suggestion-chip flex-shrink-0 px-3 py-2 bg-blue-500/10 hover:bg-blue-500/20 text-[11px] font-bold rounded-xl border border-blue-500/20 text-blue-500">👫 성별 차이</button>
+                        <button onclick="askAI('conclusion')" class="suggestion-chip flex-shrink-0 px-3 py-2 bg-slate-500/10 hover:bg-slate-500/20 text-[11px] font-bold rounded-xl border border-slate-500/20 opacity-70">📑 결론 요약</button>
+                        <button onclick="askAI('limitation')" class="suggestion-chip flex-shrink-0 px-3 py-2 bg-slate-500/10 hover:bg-slate-500/20 text-[11px] font-bold rounded-xl border border-slate-500/20 opacity-70">🚧 연구의 한계</button>
                     </div>
                 </div>
                 
@@ -496,6 +495,7 @@
 
         // --- Music Player Logic ---
         const audio = document.getElementById('bgm-player');
+        const disc = document.getElementById('disc-icon');
         const musicTitle = document.getElementById('music-title');
         const musicGenre = document.getElementById('music-genre');
         const musicPlayerDiv = document.querySelector('.music-player');
@@ -507,18 +507,16 @@
 
         function playMusic(type) {
             audio.src = tracks[type].src;
-            // Explicitly handle promise to catch auth-play errors
             var playPromise = audio.play();
             if (playPromise !== undefined) {
                 playPromise.then(_ => {
-                    // Play started
                     musicTitle.innerText = tracks[type].title;
                     musicGenre.innerText = tracks[type].genre;
                     musicPlayerDiv.classList.add('playing');
                 })
                 .catch(error => {
-                    // Auto-play was prevented
-                    alert("음악 재생을 위해 화면을 한 번 터치해주세요.");
+                    // This error is expected if user hasn't interacted with page yet.
+                    console.log("Audio play failed, waiting for user gesture:", error);
                 });
             }
         }
@@ -538,24 +536,18 @@
             'diabetes': `<strong>[당뇨 환자]</strong> Tang et al. (2024) 연구에 따르면, 당뇨 환자는 기상 후 1시간 이내에 커피를 섭취했을 때 신장 보호 효과가 가장 컸습니다. 단, 믹스커피는 혈당 관리에 치명적일 수 있습니다.`,
             'gender': `<strong>[성별 차이]</strong> 여성은 에스트로겐이 카페인 대사를 지연시켜 체내 농도를 유지하고, 신장 조직의 산화 손상을 방어하는 호르몬 효과로 인해 남성보다 뚜렷한 이점을 보일 수 있습니다.`,
             'conclusion': `<strong>[잠정 결론]</strong> '적절한 블랙커피(하루 2-3잔)'와 '오전의 차 한 잔'은 신장 건강에 유익할 수 있으나, 가당음료와 믹스커피는 명백한 위험 인자입니다.`,
-            'limitation': `<strong>[한계점]</strong> 단면 연구(Cross-sectional) 특성상 인과관계 증명이 어렵고, 설문(FFQ)에 의존한 섭취량 조사는 기억 편향(Recall Bias)이 발생할 수 있습니다.`,
-            'dose': `<strong>[적정 섭취량]</strong> 메타분석(Gao et al., 2025) 및 코호트 연구 결과, 하루 <strong>2~3잔</strong>의 커피 섭취가 CKD 발생 위험을 가장 효과적으로 낮추는 구간(J-shaped curve)으로 나타났습니다.`,
-            'green_tea': `<strong>[녹차와 신장]</strong> 일본 JACC 연구(Guo et al., 2025)에 따르면, 녹차 섭취도 신장 질환 사망률 감소와 연관이 있었으나, 남성에서만 유의한 결과(HR 0.60)를 보였습니다.`,
-            'genetics': `<strong>[유전적 요인]</strong> UK Biobank 분석(Tang et al., 2022)에서 카페인 대사 유전자(CYP1A2) 변이에 따른 신장 보호 효과의 차이를 분석했으나, 유의미한 상호작용은 발견되지 않았습니다.`,
-            'smoking': `<strong>[흡연과의 관계]</strong> ARIC 연구(Hu et al., 2018)에서는 흡연 상태에 따라 커피의 신장 보호 효과가 달라질 수 있음을 시사했으나, 명확한 결론을 위해서는 추가 연구가 필요합니다.`
+            'limitation': `<strong>[한계점]</strong> 단면 연구(Cross-sectional) 특성상 인과관계 증명이 어렵고, 설문(FFQ)에 의존한 섭취량 조사는 기억 편향(Recall Bias)이 발생할 수 있습니다.`
         };
 
         function askAI(key) {
             const chatWindow = document.getElementById('chat-window');
-            // Simplified question text for display
-            const questionMap = {
+            const userTexts = {
                 'method': "연구 데이터와 방법론은?", 'coffee_diff': "믹스커피와 블랙커피의 차이는?", 'tea_timing': "차는 언제 마시는 게 좋아?",
                 'mechanism': "어떤 원리로 신장에 좋아?", 'diabetes': "당뇨 환자에게는 어때?", 'gender': "남녀 차이가 있어?",
-                'conclusion': "결론 요약해줘.", 'limitation': "연구의 한계는?",
-                'dose': "하루 몇 잔이 적당해?", 'green_tea': "녹차는 어때?", 'genetics': "유전 영향 있어?", 'smoking': "흡연과 관계는?"
+                'conclusion': "그래서 결론이 뭐야?", 'limitation': "연구의 한계는?"
             };
             
-            addBubble(questionMap[key] || "질문", "user");
+            addBubble(userTexts[key] || "질문", "user");
             simulateTyping(() => {
                 addBubble(knowledgeBase[key], "ai");
             });
@@ -576,7 +568,6 @@
                 else if(text.includes("믹스") || text.includes("블랙")) response = knowledgeBase['coffee_diff'];
                 else if(text.includes("차") || text.includes("녹차") || text.includes("시간")) response = knowledgeBase['tea_timing'];
                 else if(text.includes("방법") || text.includes("데이터")) response = knowledgeBase['method'];
-                else if(text.includes("몇 잔") || text.includes("양")) response = knowledgeBase['dose'];
                 else if(text.includes("여자") || text.includes("남자") || text.includes("성별")) response = knowledgeBase['gender'];
                 
                 addBubble(response, "ai");
