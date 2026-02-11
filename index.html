@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>2026 연구노트 포트폴리오: Researcher Haneulssi</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Chart.js & Plotly.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+    
+    <!-- Marked.js -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    
+    <!-- Animate.css -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    
+    <!-- Font: Pretendard & Noto Sans KR -->
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/dist/web/static/pretendard.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            /* Day Theme (Sakura - Default) */
+            --bg-color: #FFF1F2;
+            --text-color: #4A044E;
+            --card-bg: rgba(255, 255, 255, 0.7);
+            --card-border: rgba(251, 113, 133, 0.2);
+            --accent-primary: #db2777;
+            --accent-secondary: #f472b6;
+            --particle-color: 251, 113, 133;
+        }
+
+        [data-theme="dark"] {
+            /* Night Theme */
+            --bg-color: #0F172A;
+            --text-color: #F1F5F9;
+            --card-bg: rgba(30, 41, 59, 0.6);
+            --card-border: rgba(255, 255, 255, 0.05);
+            --accent-primary: #6366f1;
+            --accent-secondary: #38bdf8;
+            --particle-color: 255, 255, 255;
+        }
+
+        body {
+            font-family: 'Pretendard', 'Noto Sans KR', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+            transition: background-color 0.8s ease, color 0.5s ease;
+        }
+        
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* Glassmorphism Logic */
+        .glass-panel {
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--card-border);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
+            border-radius: 1.5rem;
+            transition: transform 0.3s ease, background 0.5s ease, border-color 0.5s ease, box-shadow 0.3s ease;
+        }
+        
+        .glass-header {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--card-border);
+            transition: background 0.5s ease, border-color 0.5s ease;
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, var(--accent-secondary) 0%, var(--accent-primary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            transition: all 0.5s ease;
+        }
+
+        /* Particle Canvas */
+        #particle-canvas {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: 0;
+        }
+        
+        /* Chat Bubble Animation */
+        .chat-bubble {
+            animation: fadeInUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+            opacity: 0; transform: translateY(10px);
+        }
+        
+        @keyframes fadeInUp {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .suggestion-chip {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .suggestion-chip:active {
+            transform: scale(0.92);
+        }
+        
+        /* Music Player */
+        .music-player {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            z-index: 100;
+            transition: all 0.3s ease;
+        }
+        .music-disc {
+            animation: spin 4s linear infinite;
+            animation-play-state: paused;
+        }
+        .playing .music-disc { animation-play-state: running; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        /* Floating Score Animation */
+        @keyframes floatUpFade {
+            0% { opacity: 1; transform: translate(-50%, 0) scale(1); }
+            100% { opacity: 0; transform: translate(-50%, -40px) scale(1.2); }
+        }
+        .floating-score {
+            position: absolute;
+            left: 50%;
+            top: 40%;
+            font-weight: 800;
+            font-size: 1.5rem;
+            pointer-events: none;
+            animation: floatUpFade 0.8s ease-out forwards;
+            z-index: 50;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        /* Floating Animation for Abstract */
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-5px); }
+            100% { transform: translateY(0px); }
+        }
+        .animate-float { animation: float 4s ease-in-out infinite; }
+        
+        /* Range Slider Styling */
+        input[type=range] {
+            -webkit-appearance: none;
+            background: transparent;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 20px; width: 20px;
+            border-radius: 50%;
+            background: var(--accent-primary);
+            cursor: pointer;
+            margin-top: -8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%; height: 4px;
+            cursor: pointer;
+            background: rgba(150, 150, 150, 0.3);
+            border-radius: 2px;
+        }
+    </style>
+</head>
+<body class="antialiased pb-28 relative" data-theme="light">
+
+    <canvas id="particle-canvas"></canvas>
+
+    <!-- Navigation -->
+    <nav class="sticky top-0 z-50 glass-header">
+        <div class="max-w-3xl mx-auto px-4 py-3">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="bg-indigo-500/10 p-2 rounded-xl border border-indigo-500/20 shadow-sm">
+                        <i class="ph-fill ph-student text-2xl" style="color: var(--accent-primary)"></i>
+                    </div>
+                    <div>
+                        <h1 class="font-bold text-lg leading-none tracking-tight">Haneulssi's Lab</h1>
+                        <p class="text-[10px] opacity-70 mt-1 font-medium tracking-wide uppercase">Nutrition Epidemiology</p>
+                    </div>
+                </div>
+                <!-- Theme Toggle -->
+                <button onclick="toggleTheme()" class="p-2.5 rounded-full bg-slate-500/10 hover:bg-slate-500/20 transition active:rotate-180 duration-500">
+                    <i id="theme-icon" class="ph-fill ph-flower-lotus text-xl text-pink-500"></i>
+                </button>
+            </div>
+            <!-- Tabs -->
+            <div class="flex gap-2 overflow-x-auto hide-scrollbar mt-3 pb-1 px-1">
+                <a href="#abstract" class="flex-shrink-0 px-4 py-2 text-xs font-bold rounded-full bg-indigo-500/10 text-[var(--accent-primary)] border border-indigo-500/20 hover:bg-indigo-500/20 transition">연구 개요</a>
+                <a href="#results" class="flex-shrink-0 px-4 py-2 text-xs font-bold rounded-full bg-slate-500/5 opacity-70 border border-slate-500/10 hover:opacity-100 transition">분석 결과</a>
+                <a href="#dose-response" class="flex-shrink-0 px-4 py-2 text-xs font-bold rounded-full bg-slate-500/5 opacity-70 border border-slate-500/10 hover:opacity-100 transition">반응형 모델</a>
+                <a href="#simulator" class="flex-shrink-0 px-4 py-2 text-xs font-bold rounded-full bg-slate-500/5 opacity-70 border border-slate-500/10 hover:opacity-100 transition">시뮬레이터</a>
+                <a href="#chat" class="flex-shrink-0 px-4 py-2 text-xs font-bold rounded-full bg-slate-500/5 opacity-70 border border-slate-500/10 hover:opacity-100 transition">AI 리포트</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-3xl mx-auto px-4 py-6 space-y-10 relative z-10">
+
+        <!-- 1. Abstract -->
+        <section id="abstract" class="space-y-4 animate__animated animate__fadeIn">
+            <div class="glass-panel p-6 relative overflow-hidden group">
+                <div class="absolute -top-12 -right-12 w-48 h-48 bg-gradient-to-br from-[var(--accent-primary)] to-[var(--accent-secondary)] rounded-full blur-[70px] opacity-20 group-hover:opacity-30 transition duration-700 animate-float"></div>
+                
+                <div class="relative z-10">
+                    <div class="flex items-center gap-2 mb-3">
+                        <span class="px-2.5 py-1 rounded-md text-[10px] font-bold bg-sky-500/10 text-sky-500 border border-sky-500/20 backdrop-blur-sm">2026 KNHANES PROJECT</span>
+                    </div>
+                    <h2 class="text-2xl font-extrabold mb-4 leading-snug">
+                        Association between <span class="gradient-text">Beverage Consumption</span><br>
+                        and Kidney Function
+                    </h2>
+                    <p class="text-sm opacity-80 leading-relaxed mb-5 font-light">
+                        한국 성인의 음료 섭취 패턴이 신장 기능(eGFR)에 미치는 영향을 분석합니다.
+                    </p>
+                    <div class="grid grid-cols-2 gap-3 pt-4 border-t border-dashed border-gray-500/20">
+                        <div class="hover:bg-white/5 p-2 rounded-lg transition">
+                            <h3 style="color: var(--accent-secondary)" class="font-bold mb-1 text-xs tracking-wider">OBJECTIVE</h3>
+                            <p class="text-[11px] opacity-70">믹스커피 vs 블랙커피<br>차별적 영향 규명</p>
+                        </div>
+                        <div class="hover:bg-white/5 p-2 rounded-lg transition">
+                            <h3 style="color: var(--accent-secondary)" class="font-bold mb-1 text-xs tracking-wider">DATA SOURCE</h3>
+                            <p class="text-[11px] opacity-70">KNHANES 제9기<br>(2022-2024)</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. Results: Evidence Galaxy (Plotly) -->
+        <section id="results" class="space-y-4">
+            <div class="flex items-center gap-2 px-1 mb-2">
+                <i class="ph-fill ph-planet text-amber-500 text-lg"></i>
+                <h3 class="text-base font-bold">증거의 은하계 (Evidence Galaxy)</h3>
+            </div>
+            <div class="glass-panel p-4 relative overflow-hidden">
+                <p class="text-[11px] opacity-60 mb-2 px-1">총 12편의 핵심 논문 분포 (원 크기 = 표본 수)</p>
+                <!-- Plotly Chart Container -->
+                <div id="bubbleChart" class="w-full h-[400px]"></div>
+                <!-- Interactive Detail Panel -->
+                <div id="study-detail-panel" class="hidden mt-3 bg-white/50 border-l-4 border-amber-500 p-3 rounded-r-lg backdrop-blur-sm transition-all text-xs">
+                    <h4 id="detail-title" class="font-bold mb-1">논문 제목</h4>
+                    <p id="detail-desc" class="opacity-80 leading-snug">설명...</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. Dose-Response Model (Interactive) -->
+        <section id="dose-response" class="space-y-4">
+            <div class="flex items-center gap-2 px-1 mb-2">
+                <i class="ph-fill ph-faders text-emerald-500 text-lg"></i>
+                <h3 class="text-base font-bold">용량-반응 모델 (Dose-Response)</h3>
+            </div>
+            
+            <div class="glass-panel p-6">
+                <div class="mb-6">
+                    <h4 class="text-sm font-bold opacity-90 mb-1">하루 커피 섭취량 시뮬레이션</h4>
+                    <p class="text-[11px] opacity-60">슬라이더를 움직여 CKD 위험도 변화를 확인하세요.</p>
+                </div>
+
+                <!-- Slider Control -->
+                <div class="mb-8">
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="text-3xl font-bold" style="color: var(--accent-primary)" id="cup-display">0</span>
+                        <span class="text-xs font-bold opacity-50 uppercase tracking-widest">Cups / Day</span>
+                    </div>
+                    <input type="range" min="0" max="6" value="0" step="1" id="cup-slider" class="w-full">
+                    <div class="flex justify-between text-[10px] opacity-40 mt-2 font-mono">
+                        <span>0</span><span>2</span><span>4</span><span>6+</span>
+                    </div>
+                    <!-- Insight Box -->
+                    <div id="insight-box" class="mt-4 p-3 bg-indigo-500/5 rounded-xl border border-indigo-500/10 text-xs opacity-80 leading-relaxed font-medium transition-all">
+                        기준점입니다. 커피 폴리페놀의 이점이 아직 적용되지 않았습니다.
+                    </div>
+                </div>
+
+                <!-- Line Chart -->
+                <div class="h-[250px] w-full bg-white/30 rounded-xl p-2">
+                    <canvas id="doseChart"></canvas>
+                </div>
+                <p class="text-[9px] opacity-40 mt-2 text-right">*Based on Meta-analysis (Gao et al., 2025)</p>
+            </div>
+        </section>
+
+        <!-- 4. Simulator (Tamagotchi) -->
+        <section id="simulator" class="glass-panel p-6 relative overflow-hidden">
+            <div class="flex items-center justify-between mb-8 relative z-10">
+                <div>
+                    <h2 class="text-base font-bold flex items-center gap-2">
+                        <i class="ph-fill ph-flask" style="color: var(--accent-primary)"></i> 신장 다마고치
+                    </h2>
+                    <p class="opacity-60 text-[10px] mt-1 ml-6">커피, 차, 가당음료 통합 분석</p>
+                </div>
+                <button onclick="window.resetDrinks()" class="text-[10px] font-bold bg-slate-500/10 hover:bg-slate-500/20 px-3 py-1.5 rounded-lg transition flex items-center gap-1 active:scale-95">
+                    <i class="ph-bold ph-arrow-counter-clockwise"></i> 초기화
+                </button>
+            </div>
+
+            <div class="flex flex-col items-center gap-8 relative z-10">
+                <!-- Character & Bar -->
+                <div class="flex flex-col items-center justify-center w-full relative" style="min-height: 200px;">
+                    <div class="relative mb-6 group">
+                        <div class="absolute inset-0 bg-emerald-500/20 rounded-full blur-2xl opacity-0 group-hover:opacity-50 transition duration-500"></div>
+                        <!-- Character: Added onclick to animate manually as well -->
+                        <div id="kidney-char" class="text-[90px] transition-all duration-300 drop-shadow-2xl cursor-pointer select-none hover:scale-110 active:scale-90 relative z-10" onclick="window.pokeKidney()">🫘</div>
+                        
+                        <!-- Floating Score Container -->
+                        <div id="score-float-container" class="absolute inset-0 pointer-events-none z-20"></div>
+
+                        <div id="status-badge" class="absolute -top-2 -right-8 bg-emerald-500 text-white text-[10px] font-bold px-2.5 py-1 rounded-full shadow-lg animate-bounce border border-white/20">
+                            최적상태
+                        </div>
+                    </div>
+                    
+                    <div class="w-full space-y-2.5">
+                        <div class="flex justify-between text-xs font-bold opacity-80 px-1">
+                            <span>건강 점수</span>
+                            <span id="score-val" class="text-emerald-500">100점</span>
+                        </div>
+                        <div class="w-full bg-slate-500/10 rounded-full h-3.5 overflow-hidden ring-1 ring-slate-500/5">
+                            <div id="health-bar" class="bg-gradient-to-r from-emerald-500 to-teal-400 h-full w-full transition-all duration-700 relative shadow-[0_0_10px_rgba(16,185,129,0.3)]">
+                                <div class="absolute inset-0 bg-white/20 animate-[shimmer_2s_infinite]"></div>
+                            </div>
+                        </div>
+                        <p id="status-desc" class="text-center text-[11px] opacity-70 mt-1 font-medium">항산화 효과가 활성화되었습니다.</p>
+                    </div>
+                </div>
+
+                <!-- Controls -->
+                <div class="w-full grid grid-cols-2 gap-3">
+                    <!-- Tea -->
+                    <div class="relative group">
+                        <button onclick="window.addDrink('tea')" class="w-full glass-panel p-3.5 flex flex-col items-center hover:bg-emerald-500/5 transition active:scale-[0.97] border-emerald-500/10">
+                            <span class="text-3xl mb-1 group-hover:-translate-y-1 transition duration-300">🍵</span>
+                            <div class="text-[11px] font-bold mt-1">녹차/홍차</div>
+                            <div class="text-[9px] text-emerald-500 font-medium">+3점</div>
+                            <div id="count-tea" class="text-[9px] mt-1 opacity-40 font-mono">0잔</div>
+                        </button>
+                        <button onclick="window.removeDrink('tea', event)" class="absolute top-1 right-1 w-6 h-6 flex items-center justify-center bg-slate-500/10 hover:bg-rose-500/20 rounded-full text-slate-500 hover:text-rose-500 text-xs transition z-20" title="취소">-</button>
+                    </div>
+
+                    <!-- Black Coffee -->
+                    <div class="relative group">
+                        <button onclick="window.addDrink('black')" class="w-full glass-panel p-3.5 flex flex-col items-center hover:bg-indigo-500/5 transition active:scale-[0.97] border-indigo-500/10">
+                            <span class="text-3xl mb-1 group-hover:-translate-y-1 transition duration-300">☕</span>
+                            <div class="text-[11px] font-bold mt-1">블랙커피</div>
+                            <div class="text-[9px] text-indigo-500 font-medium">+2점</div>
+                            <div id="count-black" class="text-[9px] mt-1 opacity-40 font-mono">0잔</div>
+                        </button>
+                        <button onclick="window.removeDrink('black', event)" class="absolute top-1 right-1 w-6 h-6 flex items-center justify-center bg-slate-500/10 hover:bg-rose-500/20 rounded-full text-slate-500 hover:text-rose-500 text-xs transition z-20" title="취소">-</button>
+                    </div>
+
+                    <!-- Mix Coffee -->
+                    <div class="relative group">
+                        <button onclick="window.addDrink('mix')" class="w-full glass-panel p-3.5 flex flex-col items-center hover:bg-amber-500/5 transition active:scale-[0.97] border-amber-500/10">
+                            <span class="text-3xl mb-1 group-hover:-translate-y-1 transition duration-300">🍬</span>
+                            <div class="text-[11px] font-bold mt-1">믹스커피</div>
+                            <div class="text-[9px] text-amber-500 font-medium">-5점</div>
+                            <div id="count-mix" class="text-[9px] mt-1 opacity-40 font-mono">0잔</div>
+                        </button>
+                        <button onclick="window.removeDrink('mix', event)" class="absolute top-1 right-1 w-6 h-6 flex items-center justify-center bg-slate-500/10 hover:bg-rose-500/20 rounded-full text-slate-500 hover:text-rose-500 text-xs transition z-20" title="취소">-</button>
+                    </div>
+
+                    <!-- SSB -->
+                    <div class="relative group">
+                        <button onclick="window.addDrink('ssb')" class="w-full glass-panel p-3.5 flex flex-col items-center hover:bg-rose-500/5 transition active:scale-[0.97] border-rose-500/10">
+                            <span class="text-3xl mb-1 group-hover:-translate-y-1 transition duration-300">🥤</span>
+                            <div class="text-[11px] font-bold mt-1">탄산/주스</div>
+                            <div class="text-[9px] text-rose-500 font-medium">-10점</div>
+                            <div id="count-ssb" class="text-[9px] mt-1 opacity-40 font-mono">0잔</div>
+                        </button>
+                        <button onclick="window.removeDrink('ssb', event)" class="absolute top-1 right-1 w-6 h-6 flex items-center justify-center bg-slate-500/10 hover:bg-rose-500/20 rounded-full text-slate-500 hover:text-rose-500 text-xs transition z-20" title="취소">-</button>
+                    </div>
+                </div>
+
+                <label class="flex items-center gap-3 p-4 w-full bg-slate-500/5 rounded-xl cursor-pointer transition select-none hover:bg-slate-500/10">
+                    <div class="relative flex items-center">
+                        <input type="checkbox" id="check-diabetes" class="peer sr-only" onchange="window.updateKidneyStatus()">
+                        <div class="w-9 h-5 bg-slate-400/30 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-rose-500"></div>
+                    </div>
+                    <span class="text-xs font-bold opacity-80">당뇨병 환자군 (Risk Factor)</span>
+                </label>
+            </div>
+        </section>
+
+        <!-- 5. AI Assistant -->
+        <section id="chat" class="glass-panel flex flex-col h-[600px] overflow-hidden shadow-xl">
+            <div class="p-4 border-b border-gray-500/10 flex justify-between items-center bg-gray-500/5 backdrop-blur-md">
+                <div class="flex items-center gap-3">
+                    <div class="relative">
+                        <div class="w-2.5 h-2.5 bg-emerald-500 rounded-full absolute -right-0.5 -bottom-0.5 border-2 border-white animate-pulse"></div>
+                        <span class="text-2xl">👩‍💻</span>
+                    </div>
+                    <div>
+                        <span class="font-bold text-sm block">Researcher haneulssi</span>
+                        <span class="text-[10px] opacity-70 block font-bold tracking-wide">AI Assistant</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="chat-window" class="flex-1 p-5 overflow-y-auto space-y-5 bg-transparent scroll-smooth">
+                <div class="flex gap-3 animate__animated animate__fadeIn">
+                    <div class="flex-shrink-0 w-8 h-8 rounded-full bg-indigo-500/10 flex items-center justify-center text-sm border border-indigo-500/20">👩‍💻</div>
+                    <div class="glass-panel p-3.5 rounded-tl-none text-xs opacity-90 leading-relaxed max-w-[88%] shadow-sm">
+                        안녕하세요! <strong>Researcher haneulssi</strong>입니다.<br><br>
+                        2025-2026 연구노트 내용을 바탕으로 답변해 드립니다.<br>
+                        궁금한 점을 아래 칩에서 선택하거나 직접 입력해주세요! 📚
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Quick Chips & Input Area -->
+            <div class="p-4 border-t border-gray-500/10 bg-gray-500/5 backdrop-blur-md flex flex-col gap-3">
+                <p class="text-[10px] opacity-50 font-bold ml-1 uppercase tracking-wider">Quick Q&A:</p>
+                <!-- Chips -->
+                <div class="flex flex-col gap-2.5">
+                    <div class="flex gap-2 overflow-x-auto hide-scrollbar pb-1">
+                        <button onclick="askAI('method')" class="suggestion-chip flex-shrink-0 px-3 py-2 bg-indigo-500/10 hover:bg-indigo-500/20 text-[11px] font-bold rounded-xl border border-indigo-500/20 text-indigo-500">🔬 연구 방법</button>
+                        <button onclick="askAI('coffee_diff')" class="suggestion-chip flex-shrink-0 px-3 py-2 bg-amber-500/10 hover:bg-amber-500/20 text-[11px] font-bold rounded-xl border border-amber-500/20 text-amber-500">☕ 믹스 vs 블랙</button>
+                        <button onclick="askAI('tea_timing')" class="suggestion-chip flex-shrink-0 px-3 py-2 bg-emerald-500/10 hover:bg-emerald-500/20 text-[11px] font-bold rounded-xl border border-emerald-500/20 text-emerald-500">⏰ 차 섭취 타이밍</button>
+                        <button onclick="askAI('dose')" class="suggestion-chip flex-shrink-0 px-3 py-2 bg-blue-500/10 hover:bg-blue-500/20 text-[11px] font-bold rounded-xl border border-blue-500/20 text-blue-500">🥤 권장 섭취량</button>
+                    </div>
+                    <div class="flex gap-2 overflow-x-auto hide-scrollbar pb-1">
+                        <button onclick="askAI('mechanism')" class="suggestion-chip flex-shrink-0 px-3 py-2 bg-purple-500/10 hover:bg-purple-500/20 text-[11px] font-bold rounded-xl border border-purple-500/20 text-purple-500">🧬 작용 기전</button>
+                        <button onclick="askAI('diabetes')" class="suggestion-chip flex-shrink-0 px-3 py-2 bg-rose-500/10 hover:bg-rose-500/20 text-[11px] font-bold rounded-xl border border-rose-500/20 text-rose-500">🩸 당뇨 환자</button>
+                        <button onclick="askAI('green_tea')" class="suggestion-chip flex-shrink-0 px-3 py-2 bg-teal-500/10 hover:bg-teal-500/20 text-[11px] font-bold rounded-xl border border-teal-500/20 text-teal-500">🍵 녹차의 효과</button>
+                        <button onclick="askAI('genetics')" class="suggestion-chip flex-shrink-0 px-3 py-2 bg-slate-500/10 hover:bg-slate-500/20 text-[11px] font-bold rounded-xl border border-slate-500/20 opacity-70">🧬 유전적 요인</button>
+                    </div>
+                </div>
+                
+                <!-- Custom Input -->
+                <div class="relative mt-1">
+                    <input type="text" id="user-input" placeholder="질문을 입력하세요... (예: 믹스커피 많이 마시면?)" class="w-full bg-white/50 border border-indigo-200 rounded-xl pl-4 pr-12 py-3 text-xs focus:ring-2 focus:ring-indigo-300 focus:outline-none transition-all placeholder-gray-400" onkeypress="if(event.key==='Enter') sendUserQuery()">
+                    <button onclick="sendUserQuery()" class="absolute right-2 top-1.5 p-1.5 bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg transition active:scale-95">
+                        <i class="ph-bold ph-paper-plane-right text-sm"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <section class="text-center pt-8 pb-4">
+            <p class="opacity-50 text-[10px] font-medium tracking-widest uppercase">© 2026 Researcher Haneulssi</p>
+        </section>
+
+    </main>
+
+    <!-- Music Player Widget -->
+    <div class="music-player glass-panel p-2 flex items-center gap-3 pr-4 rounded-full border border-white/20 shadow-xl backdrop-blur-xl">
+        <div class="music-disc w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center border-2 border-slate-600 relative overflow-hidden" id="disc-icon">
+            <div class="w-2 h-2 bg-white rounded-full z-10"></div>
+            <div class="absolute inset-0 bg-gradient-to-tr from-transparent via-white/10 to-transparent"></div>
+        </div>
+        <div class="flex flex-col">
+            <span class="text-[10px] font-bold opacity-80" id="music-title">Music Off</span>
+            <span class="text-[8px] opacity-50" id="music-genre">Select Genre</span>
+        </div>
+        <div class="flex gap-2 ml-2">
+            <button onclick="playMusic('spring')" class="text-lg hover:scale-110 transition active:scale-95" title="Vivaldi - Spring">🎻</button>
+            <button onclick="playMusic('mozart')" class="text-lg hover:scale-110 transition active:scale-95" title="Mozart - Nachtmusik">🎹</button>
+            <button onclick="stopMusic()" class="text-lg hover:scale-110 transition active:scale-95 text-rose-400" title="Stop">⏹️</button>
+        </div>
+        <audio id="bgm-player" loop></audio>
+    </div>
+
+    <script>
+        // --- Theme Logic ---
+        let isDarkMode = false; 
+        const body = document.body;
+        const themeIcon = document.getElementById('theme-icon');
+        const particleCanvas = document.getElementById('particle-canvas');
+
+        function toggleTheme() {
+            isDarkMode = !isDarkMode;
+            body.setAttribute('data-theme', isDarkMode ? 'dark' : 'light');
+            
+            if (isDarkMode) {
+                themeIcon.className = 'ph-fill ph-moon-stars text-xl text-yellow-300';
+                initParticles('stars');
+            } else {
+                themeIcon.className = 'ph-fill ph-flower-lotus text-xl text-pink-500';
+                initParticles('sakura');
+            }
+            updateChartColors(isDarkMode);
+            initBubbleChart();
+        }
+
+        // --- Music Player Logic ---
+        const audio = document.getElementById('bgm-player');
+        const musicTitle = document.getElementById('music-title');
+        const musicGenre = document.getElementById('music-genre');
+        const musicPlayerDiv = document.querySelector('.music-player');
+
+        const tracks = {
+            'spring': { src: "https://upload.wikimedia.org/wikipedia/commons/3/3c/Antonio_Vivaldi_-_Spring_mvt_1_Allegro_-_John_Harrison_violin.ogg", title: "Vivaldi: Spring", genre: "Upbeat Classic" },
+            'mozart': { src: "https://upload.wikimedia.org/wikipedia/commons/2/28/Wolfgang_Amadeus_Mozart_-_Eine_kleine_Nachtmusik_-_1._Allegro.ogg", title: "Mozart: Nachtmusik", genre: "Energetic Classic" } 
+        };
+
+        function playMusic(type) {
+            audio.src = tracks[type].src;
+            // Explicitly handle promise to catch auth-play errors
+            var playPromise = audio.play();
+            if (playPromise !== undefined) {
+                playPromise.then(_ => {
+                    // Play started
+                    musicTitle.innerText = tracks[type].title;
+                    musicGenre.innerText = tracks[type].genre;
+                    musicPlayerDiv.classList.add('playing');
+                })
+                .catch(error => {
+                    // Auto-play was prevented
+                    alert("음악 재생을 위해 화면을 한 번 터치해주세요.");
+                });
+            }
+        }
+
+        function stopMusic() {
+            audio.pause();
+            musicTitle.innerText = "Music Paused";
+            musicPlayerDiv.classList.remove('playing');
+        }
+
+        // --- Knowledge Base & Chat Logic ---
+        const knowledgeBase = {
+            'method': `<strong>[연구 설계]</strong> KNHANES 제9기(2022-2024) 데이터를 활용하며, 만 19-64세 성인을 대상으로 합니다. 신장 기능은 CKD-EPI (2021) 공식을 통해 산출된 eGFR로 평가하며, 복합표본 다중회귀분석을 수행합니다.`,
+            'coffee_diff': `<strong>[커피 유형별 차이]</strong> 블랙커피는 항산화 성분(폴리페놀)으로 인해 신장 보호 효과가 기대되나, 믹스커피는 설탕과 프림으로 인한 대사증후군 위험 증가로 신장에 부정적일 수 있다는 가설을 검증합니다.`,
+            'tea_timing': `<strong>[차 섭취 타이밍]</strong> 11월 연구노트에 따르면, 신장 대사 활동이 활발한 '오전 시간대(새벽~정오)'에 차를 섭취할 경우 eGFR 유지에 가장 긍정적인 영향을 미치는 것으로 나타났습니다.`,
+            'mechanism': `<strong>[작용 기전]</strong> 커피의 클로로겐산은 산화 스트레스를 줄이고, 카페인은 아데노신 수용체를 차단하여 신장의 산소 소비를 조절합니다. 반면 과당(Fructose)은 요산을 증가시켜 해롭습니다.`,
+            'diabetes': `<strong>[당뇨 환자]</strong> Tang et al. (2024) 연구에 따르면, 당뇨 환자는 기상 후 1시간 이내에 커피를 섭취했을 때 신장 보호 효과가 가장 컸습니다. 단, 믹스커피는 혈당 관리에 치명적일 수 있습니다.`,
+            'gender': `<strong>[성별 차이]</strong> 여성은 에스트로겐이 카페인 대사를 지연시켜 체내 농도를 유지하고, 신장 조직의 산화 손상을 방어하는 호르몬 효과로 인해 남성보다 뚜렷한 이점을 보일 수 있습니다.`,
+            'conclusion': `<strong>[잠정 결론]</strong> '적절한 블랙커피(하루 2-3잔)'와 '오전의 차 한 잔'은 신장 건강에 유익할 수 있으나, 가당음료와 믹스커피는 명백한 위험 인자입니다.`,
+            'limitation': `<strong>[한계점]</strong> 단면 연구(Cross-sectional) 특성상 인과관계 증명이 어렵고, 설문(FFQ)에 의존한 섭취량 조사는 기억 편향(Recall Bias)이 발생할 수 있습니다.`,
+            'dose': `<strong>[적정 섭취량]</strong> 메타분석(Gao et al., 2025) 및 코호트 연구 결과, 하루 <strong>2~3잔</strong>의 커피 섭취가 CKD 발생 위험을 가장 효과적으로 낮추는 구간(J-shaped curve)으로 나타났습니다.`,
+            'green_tea': `<strong>[녹차와 신장]</strong> 일본 JACC 연구(Guo et al., 2025)에 따르면, 녹차 섭취도 신장 질환 사망률 감소와 연관이 있었으나, 남성에서만 유의한 결과(HR 0.60)를 보였습니다.`,
+            'genetics': `<strong>[유전적 요인]</strong> UK Biobank 분석(Tang et al., 2022)에서 카페인 대사 유전자(CYP1A2) 변이에 따른 신장 보호 효과의 차이를 분석했으나, 유의미한 상호작용은 발견되지 않았습니다.`,
+            'smoking': `<strong>[흡연과의 관계]</strong> ARIC 연구(Hu et al., 2018)에서는 흡연 상태에 따라 커피의 신장 보호 효과가 달라질 수 있음을 시사했으나, 명확한 결론을 위해서는 추가 연구가 필요합니다.`
+        };
+
+        function askAI(key) {
+            const chatWindow = document.getElementById('chat-window');
+            // Simplified question text for display
+            const questionMap = {
+                'method': "연구 데이터와 방법론은?", 'coffee_diff': "믹스커피와 블랙커피의 차이는?", 'tea_timing': "차는 언제 마시는 게 좋아?",
+                'mechanism': "어떤 원리로 신장에 좋아?", 'diabetes': "당뇨 환자에게는 어때?", 'gender': "남녀 차이가 있어?",
+                'conclusion': "결론 요약해줘.", 'limitation': "연구의 한계는?",
+                'dose': "하루 몇 잔이 적당해?", 'green_tea': "녹차는 어때?", 'genetics': "유전 영향 있어?", 'smoking': "흡연과 관계는?"
+            };
+            
+            addBubble(questionMap[key] || "질문", "user");
+            simulateTyping(() => {
+                addBubble(knowledgeBase[key], "ai");
+            });
+        }
+
+        function sendUserQuery() {
+            const input = document.getElementById('user-input');
+            const text = input.value.trim();
+            if(!text) return;
+            
+            addBubble(text, "user");
+            input.value = "";
+            
+            simulateTyping(() => {
+                let response = "죄송합니다. 현재 학습된 2025-2026년 연구노트 범위 내에서 관련된 내용을 찾지 못했습니다. 위의 칩을 눌러보세요!";
+                // Simple keyword matching
+                if(text.includes("당뇨")) response = knowledgeBase['diabetes'];
+                else if(text.includes("믹스") || text.includes("블랙")) response = knowledgeBase['coffee_diff'];
+                else if(text.includes("차") || text.includes("녹차") || text.includes("시간")) response = knowledgeBase['tea_timing'];
+                else if(text.includes("방법") || text.includes("데이터")) response = knowledgeBase['method'];
+                else if(text.includes("몇 잔") || text.includes("양")) response = knowledgeBase['dose'];
+                else if(text.includes("여자") || text.includes("남자") || text.includes("성별")) response = knowledgeBase['gender'];
+                
+                addBubble(response, "ai");
+            });
+        }
+
+        function addBubble(text, type) {
+            const chatWindow = document.getElementById('chat-window');
+            const isUser = type === 'user';
+            const align = isUser ? 'justify-end' : '';
+            const bg = isUser ? 'bg-indigo-500 text-white shadow-md' : 'glass-panel text-xs opacity-90 border border-slate-500/10 shadow-sm';
+            const radius = isUser ? 'rounded-tr-none' : 'rounded-tl-none';
+            const icon = isUser ? '' : '<div class="flex-shrink-0 w-8 h-8 rounded-full bg-indigo-500/10 flex items-center justify-center text-sm border border-indigo-500/20">👩‍💻</div>';
+            
+            const html = `
+                <div class="flex gap-3 chat-bubble ${align}">
+                    ${icon}
+                    <div class="${bg} p-3.5 rounded-2xl ${radius} max-w-[88%] ${isUser ? 'text-xs font-medium' : ''}">
+                        ${text}
+                    </div>
+                </div>`;
+            chatWindow.insertAdjacentHTML('beforeend', html);
+            chatWindow.scrollTop = chatWindow.scrollHeight;
+        }
+
+        function simulateTyping(callback) {
+            const chatWindow = document.getElementById('chat-window');
+            const id = 'typing-' + Date.now();
+            chatWindow.insertAdjacentHTML('beforeend', `
+                <div id="${id}" class="flex gap-3 chat-bubble mt-2">
+                    <div class="flex-shrink-0 w-8 h-8 rounded-full bg-indigo-500/10 flex items-center justify-center text-sm border border-indigo-500/20">👩‍💻</div>
+                    <div class="glass-panel p-3 rounded-2xl rounded-tl-none border border-slate-500/10">
+                        <div class="flex gap-1">
+                            <span class="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce"></span>
+                            <span class="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style="animation-delay: 0.1s"></span>
+                            <span class="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></span>
+                        </div>
+                    </div>
+                </div>`);
+            chatWindow.scrollTop = chatWindow.scrollHeight;
+            setTimeout(() => {
+                document.getElementById(id).remove();
+                callback();
+            }, 600 + Math.random() * 400);
+        }
+
+        // --- Charts & Slider ---
+        let doseChart;
+        function initCharts() {
+            initDoseChart();
+            initBubbleChart();
+        }
+
+        function initBubbleChart() {
+            // Same data logic as before
+            const papers = [
+                { author: "Mazidi", year: 2022, n: 12385, type: "Cross", text: "NHANES (MR)" },
+                { author: "Gao", year: 2025, n: 49827, type: "Cross", text: "NHANES" },
+                { author: "Guo", year: 2025, n: 99744, type: "Cohort", text: "JACC (Japan)" },
+                { author: "Hu", year: 2018, n: 14209, type: "Cohort", text: "ARIC (USA)" },
+                { author: "Tang", year: 2022, n: 359906, type: "Cohort", text: "UK Biobank" },
+                { author: "Kanbay", year: 2021, n: 505841, type: "Meta", text: "Meta-analysis" },
+                { author: "van Westing", year: 2023, n: 5447, type: "Cohort", text: "Rotterdam" },
+                { author: "Tang (Dia)", year: 2024, n: 8564, type: "Cross", text: "NHANES (Diabetic)" },
+                { author: "Jhee", year: 2018, n: 8717, type: "Cohort", text: "KoGES (Korea)" },
+                { author: "Kim", year: 2013, n: 2673, type: "Cross", text: "KNHANES IV (Women)" },
+                { author: "Shin", year: 2018, n: 2110, type: "Cross", text: "KNHANES 2014" },
+                { author: "Park", year: 2018, n: 3500, type: "Cross", text: "KNHANES 13-14" }
+            ];
+            const trace = {
+                x: papers.map(p => p.year), y: papers.map(p => p.n), text: papers.map(p => p.author),
+                mode: 'markers', marker: { size: papers.map(p => Math.sqrt(p.n)/4), sizemode: 'area', color: isDarkMode ? '#6366f1' : '#db2777', opacity: 0.7 }
+            };
+            const layout = {
+                margin: {t:10, l:40, r:10, b:40}, paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)',
+                xaxis: { title: 'Publication Year', color: isDarkMode ? '#94a3b8' : '#64748b' },
+                yaxis: { title: 'Participants (Log)', type: 'log', color: isDarkMode ? '#94a3b8' : '#64748b' },
+                hovermode: 'closest'
+            };
+            Plotly.newPlot('bubbleChart', [trace], layout, {displayModeBar: false, responsive: true});
+            document.getElementById('bubbleChart').on('plotly_click', function(data){
+                const idx = data.points[0].pointIndex; const p = papers[idx];
+                const panel = document.getElementById('study-detail-panel'); panel.classList.remove('hidden');
+                document.getElementById('detail-title').innerText = `${p.author} et al. (${p.year})`;
+                document.getElementById('detail-desc').innerText = `N=${p.n.toLocaleString()} (${p.type}). Source: ${p.text}`;
+            });
+        }
+
+        function initDoseChart() {
+            const ctx = document.getElementById('doseChart').getContext('2d');
+            doseChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['0잔', '1잔', '2잔', '3잔', '4잔', '5잔+'],
+                    datasets: [{
+                        label: 'CKD 위험도 (1.0=기준)', data: [1.0, 0.92, 0.85, 0.78, 0.76, 0.82],
+                        borderColor: isDarkMode ? '#fbbf24' : '#db2777', backgroundColor: isDarkMode ? 'rgba(251, 191, 36, 0.1)' : 'rgba(219, 39, 119, 0.1)',
+                        tension: 0.4, fill: true, pointRadius: 4
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { min: 0.6, max: 1.1, grid: { display: false }, ticks: { color: 'rgba(150,150,150,0.5)' } }, x: { grid: { display: false }, ticks: { color: 'rgba(150,150,150,0.5)' } } } }
+            });
+        }
+
+        function updateChartColors(isDark) {
+            if(doseChart) {
+                doseChart.data.datasets[0].borderColor = isDark ? '#fbbf24' : '#db2777';
+                doseChart.data.datasets[0].backgroundColor = isDark ? 'rgba(251, 191, 36, 0.1)' : 'rgba(219, 39, 119, 0.1)';
+                doseChart.update();
+            }
+        }
+
+        document.getElementById('cup-slider').addEventListener('input', (e) => {
+            const val = parseInt(e.target.value);
+            document.getElementById('cup-display').innerText = val === 6 ? "6+" : val;
+            const insights = ["기준점입니다.", "약간의 이점 (타이밍 중요)", "유의미한 항산화 효과", "최적의 범위 (Sweet Spot)", "높은 보호 효과", "효과 평탄화/부작용 주의", "과다 섭취 주의"];
+            document.getElementById('insight-box').innerText = insights[Math.min(val, 6)];
+            const colors = new Array(6).fill(isDarkMode ? 'white' : 'white');
+            colors[Math.min(val, 5)] = isDarkMode ? '#fbbf24' : '#db2777';
+            doseChart.data.datasets[0].pointBackgroundColor = colors;
+            doseChart.data.datasets[0].pointRadius = colors.map(c => c === 'white' ? 4 : 8);
+            doseChart.update();
+        });
+
+        // --- Simulator Logic ---
+        const counts = { black: 0, tea: 0, mix: 0, ssb: 0 };
+        const states = [
+            { limit: 30, title: "위험 (High Risk)", color: "from-rose-600 to-red-500", desc: "당분 과다! 가당음료와 믹스커피를 줄이세요." },
+            { limit: 60, title: "주의 (Caution)", color: "from-amber-500 to-orange-400", desc: "믹스커피 섭취를 블랙커피로 바꿔보세요." },
+            { limit: 85, title: "양호 (Good)", color: "from-blue-500 to-indigo-400", desc: "좋습니다. 수분 섭취를 유지하세요." },
+            { limit: 101, title: "최적 (Optimal)", color: "from-emerald-500 to-teal-400", desc: "신장 건강에 가장 이상적인 패턴입니다!" }
+        ];
+
+        window.addDrink = (t) => { 
+            counts[t]++;
+            animateChar(t);
+            updateUI(t); 
+            // Floating score logic
+            const pts = (t==='tea'?'+3': t==='black'?'+2': t==='mix'?'-5':'-10');
+            showFloatingScore(pts, t);
+        };
+        
+        window.removeDrink = (t, e) => {
+            if(e) e.stopPropagation();
+            if(counts[t] > 0) { counts[t]--; animateChar('remove'); updateUI(t); }
+        };
+        
+        window.resetDrinks = () => { for(let k in counts) counts[k]=0; updateUI(); };
+        window.pokeKidney = () => { animateChar('poke'); };
+
+        function showFloatingScore(text, type) {
+            const container = document.getElementById('score-float-container');
+            const el = document.createElement('div');
+            el.className = 'floating-score';
+            el.innerText = text;
+            
+            // Color based on type
+            if(type==='tea') el.style.color='#10B981';
+            else if(type==='black') el.style.color='#6366F1';
+            else if(type==='mix') el.style.color='#F59E0B';
+            else el.style.color='#F43F5E';
+            
+            container.appendChild(el);
+            setTimeout(() => el.remove(), 800);
+        }
+
+        function animateChar(type) {
+            const char = document.getElementById('kidney-char');
+            char.style.animation = 'none';
+            void char.offsetWidth; // Trigger reflow
+            char.style.animation = null; 
+            
+            char.classList.remove('animate__headShake', 'animate__rubberBand', 'animate__wobble');
+            if(type === 'mix' || type === 'ssb') char.classList.add('animate__headShake');
+            else if(type === 'remove') char.classList.add('animate__wobble');
+            else char.classList.add('animate__rubberBand');
+        }
+
+        function updateUI(t) {
+            if(t) document.getElementById(`count-${t}`).innerText = counts[t] + "잔";
+            else document.querySelectorAll('[id^="count-"]').forEach(e=>e.innerText='0잔');
+            
+            let score = 100 + (counts.black*2) + (counts.tea*3) - (counts.mix*5) - (counts.ssb*10);
+            if(document.getElementById('check-diabetes').checked) score -= (counts.mix*2 + counts.ssb*5);
+            score = Math.max(0, Math.min(100, score));
+            
+            const s = states.find(s => score < s.limit) || states[3];
+            document.getElementById('score-val').innerText = score + "점";
+            document.getElementById('status-badge').innerText = s.title;
+            document.getElementById('status-desc').innerText = s.desc;
+            
+            const bar = document.getElementById('health-bar');
+            bar.style.width = `${score}%`;
+            bar.className = `h-full w-full transition-all duration-500 relative bg-gradient-to-r ${s.color}`;
+        }
+        window.updateKidneyStatus = () => updateUI();
+
+        // --- Particles ---
+        const particleCtx = particleCanvas.getContext('2d');
+        let width, height, particles = [], animationFrameId;
+        window.addEventListener('resize', () => { width = particleCanvas.width = window.innerWidth; height = particleCanvas.height = window.innerHeight; });
+        
+        class Particle {
+            constructor(type) { this.type = type; this.init(); }
+            init() {
+                this.x = Math.random() * width; this.y = Math.random() * height;
+                this.size = Math.random() * (this.type === 'sakura' ? 6 : 2);
+                this.speedX = (Math.random() - 0.5) * (this.type === 'sakura' ? 1.5 : 0.2);
+                this.speedY = Math.random() * (this.type === 'sakura' ? 2 : 0.2) + 0.1;
+                this.opacity = Math.random() * 0.5 + 0.2;
+                this.rotation = Math.random() * 360;
+                this.rotationSpeed = (Math.random() - 0.5) * 2;
+            }
+            update() {
+                this.x += this.speedX; this.y += this.speedY;
+                if(this.type === 'sakura') { this.rotation += this.rotationSpeed; this.x += Math.sin(this.y * 0.01) * 0.5; }
+                if (this.y > height) this.y = -10; if (this.x > width) this.x = 0; if (this.x < 0) this.x = width;
+            }
+            draw() {
+                particleCtx.save(); particleCtx.globalAlpha = this.opacity;
+                if(this.type === 'sakura') {
+                    particleCtx.translate(this.x, this.y); particleCtx.rotate(this.rotation * Math.PI / 180);
+                    particleCtx.fillStyle = '#FDA4AF'; 
+                    particleCtx.beginPath(); 
+                    particleCtx.moveTo(0,0); particleCtx.bezierCurveTo(this.size/2, -this.size/2, this.size, 0, 0, this.size); 
+                    particleCtx.bezierCurveTo(-this.size, 0, -this.size/2, -this.size/2, 0, 0); 
+                    particleCtx.fill();
+                } else {
+                    particleCtx.fillStyle = '#FFFFFF'; particleCtx.beginPath(); particleCtx.arc(this.x, this.y, this.size, 0, Math.PI * 2); particleCtx.fill();
+                }
+                particleCtx.restore();
+            }
+        }
+
+        function initParticles(type) {
+            if(animationFrameId) cancelAnimationFrame(animationFrameId);
+            width = particleCanvas.width = window.innerWidth; height = particleCanvas.height = window.innerHeight;
+            particles = [];
+            const count = type === 'sakura' ? 50 : 80;
+            for(let i=0; i<count; i++) particles.push(new Particle(type));
+            animate();
+        }
+
+        function animate() {
+            particleCtx.clearRect(0, 0, width, height);
+            particles.forEach(p => { p.update(); p.draw(); });
+            animationFrameId = requestAnimationFrame(animate);
+        }
+
+        // Init
+        initCharts();
+        initParticles('sakura'); 
+    </script>
+</body>
+</html>
