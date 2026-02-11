@@ -4,10 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     
-    <!-- 링크 공유 시 보이는 정보 (메타 태그) -->
+    <!-- 링크 공유 시 보이는 정보 -->
     <title>2026 음료와 신장 건강 연구 (Researcher Haneulssi)</title>
     <meta property="og:title" content="2026 음료와 신장 건강 연구 (Researcher Haneulssi)">
-    <meta property="og:description" content="한국 성인의 커피, 차, 가당음료 섭취가 신장 기능(eGFR)에 미치는 영향 분석 포트폴리오">
+    <meta property="og:description" content="한국 성인의 커피, 차, 가당음료 섭취가 신장 기능(eGFR)에 미치는 영향">
     <meta property="og:image" content="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Food/Hot%20Beverage.png">
     
     <!-- Tailwind CSS -->
@@ -468,11 +468,12 @@
         </div>
         <div class="flex flex-col">
             <span class="text-[10px] font-bold opacity-80" id="music-title">Music Off</span>
-            <span class="text-[8px] opacity-50" id="music-genre">Youtube Playlist</span>
+            <span class="text-[8px] opacity-50" id="music-genre">BGM Select</span>
         </div>
         <div class="flex gap-2 ml-2">
-            <button onclick="playMusic()" class="text-lg hover:scale-110 transition active:scale-95 text-emerald-400" title="Play">▶️</button>
-            <button onclick="stopMusic()" class="text-lg hover:scale-110 transition active:scale-95 text-rose-400" title="Pause">⏸️</button>
+            <button onclick="playMusic('playlist1')" class="text-lg hover:scale-110 transition active:scale-95 text-emerald-400" title="Cafe/Study">☕</button>
+            <button onclick="playMusic('playlist2')" class="text-lg hover:scale-110 transition active:scale-95 text-indigo-400" title="Lo-fi/Night">🌙</button>
+            <button onclick="stopMusic()" class="text-lg hover:scale-110 transition active:scale-95 text-rose-400" title="Stop">⏹️</button>
         </div>
         <!-- Hidden YouTube Player -->
         <div id="youtube-player" style="position: absolute; opacity: 0; width: 1px; height: 1px; pointer-events: none; z-index: -1;"></div>
@@ -503,6 +504,7 @@
         // --- Music Player Logic (YouTube API) ---
         const disc = document.getElementById('disc-icon');
         const musicTitle = document.getElementById('music-title');
+        const musicGenre = document.getElementById('music-genre');
         const musicPlayerDiv = document.querySelector('.music-player');
         
         var tag = document.createElement('script');
@@ -511,17 +513,22 @@
         firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
         var player;
+        
+        // Define Tracks
+        const youtubeTracks = {
+            'playlist1': { id: 'Oeda7KVkFog', title: 'classic hip-hop', icon: '🎻' },
+            'playlist2': { id: '4n7RoG2M4ao', title: 'K.K. House', icon: '🌙' }
+        };
+
         function onYouTubeIframeAPIReady() {
             player = new YT.Player('youtube-player', {
                 height: '0',
                 width: '0',
-                videoId: 'Oeda7KVkFog', // Requested Video ID
                 playerVars: {
                     'autoplay': 0,
                     'controls': 0,
                     'disablekb': 1,
                     'loop': 1,
-                    'playlist': 'Oeda7KVkFog' // Loop playlist
                 },
                 events: {
                     'onStateChange': onPlayerStateChange
@@ -533,17 +540,22 @@
             if (event.data == YT.PlayerState.PLAYING) {
                 musicPlayerDiv.classList.add('playing');
                 disc.style.animationPlayState = 'running';
-                musicTitle.innerText = "Study Playlist 🎧";
+                // Title is set in playMusic function
             } else {
                 musicPlayerDiv.classList.remove('playing');
                 disc.style.animationPlayState = 'paused';
-                if(event.data == YT.PlayerState.PAUSED) musicTitle.innerText = "Music Paused";
+                if(event.data == YT.PlayerState.PAUSED || event.data == YT.PlayerState.ENDED) {
+                     musicTitle.innerText = "Music Paused";
+                }
             }
         }
 
-        function playMusic() {
-            if (player && player.playVideo) {
-                player.playVideo();
+        function playMusic(key) {
+            if (player && player.loadVideoById) {
+                const track = youtubeTracks[key];
+                player.loadVideoById(track.id);
+                musicTitle.innerText = track.title;
+                musicGenre.innerText = "Playing...";
             }
         }
 
