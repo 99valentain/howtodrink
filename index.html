@@ -213,7 +213,7 @@
             <div class="flex gap-2 overflow-x-auto hide-scrollbar mt-3 pb-1 px-1">
                 <a href="#abstract" class="flex-shrink-0 px-4 py-2 text-xs font-bold rounded-full bg-indigo-500/10 text-[var(--accent-primary)] border border-indigo-500/20 hover:bg-indigo-500/20 transition">연구 개요</a>
                 <a href="#results" class="flex-shrink-0 px-4 py-2 text-xs font-bold rounded-full bg-slate-500/5 opacity-70 border border-slate-500/10 hover:opacity-100 transition">분석 결과</a>
-                <a href="#dose-response" class="flex-shrink-0 px-4 py-2 text-xs font-bold rounded-full bg-slate-500/5 opacity-70 border border-slate-500/10 hover:opacity-100 transition">반응형 모델</a>
+                <a href="#dose-response" class="flex-shrink-0 px-4 py-2 text-xs font-bold rounded-full bg-slate-500/5 opacity-70 border border-slate-500/10 hover:opacity-100 transition">용량-반응</a>
                 <a href="#simulator" class="flex-shrink-0 px-4 py-2 text-xs font-bold rounded-full bg-slate-500/5 opacity-70 border border-slate-500/10 hover:opacity-100 transition">시뮬레이터</a>
                 <a href="#chat" class="flex-shrink-0 px-4 py-2 text-xs font-bold rounded-full bg-slate-500/5 opacity-70 border border-slate-500/10 hover:opacity-100 transition">AI 리포트</a>
             </div>
@@ -471,8 +471,8 @@
             <span class="text-[8px] opacity-50" id="music-genre">BGM Select</span>
         </div>
         <div class="flex gap-2 ml-2">
-            <button onclick="playMusic('playlist1')" class="text-lg hover:scale-110 transition active:scale-95 text-emerald-400" title="Cafe/Study">☕</button>
-            <button onclick="playMusic('playlist2')" class="text-lg hover:scale-110 transition active:scale-95 text-indigo-400" title="Lo-fi/Night">🌙</button>
+            <button onclick="playMusic('playlist1')" class="text-lg hover:scale-110 transition active:scale-95 text-emerald-400" title="classic hip-hop">🎻</button>
+            <button onclick="playMusic('playlist2')" class="text-lg hover:scale-110 transition active:scale-95 text-indigo-400" title="K.K. House">🌙</button>
             <button onclick="stopMusic()" class="text-lg hover:scale-110 transition active:scale-95 text-rose-400" title="Stop">⏹️</button>
         </div>
         <!-- Hidden YouTube Player -->
@@ -569,9 +569,9 @@
         const knowledgeBase = {
             'method': `<strong>[연구 설계]</strong> KNHANES 제9기(2022-2024) 데이터를 활용하며, 만 19-64세 성인을 대상으로 합니다. 신장 기능은 CKD-EPI (2021) 공식을 통해 산출된 eGFR로 평가하며, 복합표본 다중회귀분석을 수행합니다.`,
             'coffee_diff': `<strong>[커피 유형별 차이]</strong> 블랙커피는 항산화 성분(폴리페놀)으로 인해 신장 보호 효과가 기대되나, 믹스커피는 설탕과 프림으로 인한 대사증후군 위험 증가로 신장에 부정적일 수 있다는 가설을 검증합니다.`,
-            'tea_timing': `<strong>[차 섭취 타이밍]</strong> 11월 연구노트에 따르면, 신장 대사 활동이 활발한 '오전 시간대(새벽~정오)'에 차를 섭취할 경우 eGFR 유지에 가장 긍정적인 영향을 미치는 것으로 나타났습니다.`,
+            'tea_timing': `<strong>[차 섭취 타이밍]</strong> Gao et al.(2025)에 따르면, 신장 대사 활동이 활발한 '오전 시간대(새벽~정오)'에 차를 섭취할 경우 eGFR 유지에 가장 긍정적인 영향을 미치는 것으로 나타났습니다.`,
             'mechanism': `<strong>[작용 기전]</strong> 커피의 클로로겐산은 산화 스트레스를 줄이고, 카페인은 아데노신 수용체를 차단하여 신장의 산소 소비를 조절합니다. 반면 과당(Fructose)은 요산을 증가시켜 해롭습니다.`,
-            'diabetes': `<strong>[당뇨 환자]</strong> Tang et al. (2024) 연구에 따르면, 당뇨 환자는 기상 후 1시간 이내에 커피를 섭취했을 때 신장 보호 효과가 가장 컸습니다. 단, 믹스커피는 혈당 관리에 치명적일 수 있습니다.`,
+            'diabetes': `<strong>[당뇨 환자]</strong> Tang et al.(2024) 연구에 따르면, 당뇨 환자는 기상 후 1시간 이내에 커피를 섭취했을 때 신장 보호 효과가 가장 컸습니다. 단, 믹스커피는 혈당 관리에 치명적일 수 있습니다.`,
             'gender': `<strong>[성별 차이]</strong> 여성은 에스트로겐이 카페인 대사를 지연시켜 체내 농도를 유지하고, 신장 조직의 산화 손상을 방어하는 호르몬 효과로 인해 남성보다 뚜렷한 이점을 보일 수 있습니다.`,
             'conclusion': `<strong>[잠정 결론]</strong> '적절한 블랙커피(하루 2-3잔)'와 '오전의 차 한 잔'은 신장 건강에 유익할 수 있으나, 가당음료와 믹스커피는 명백한 위험 인자입니다.`
         };
@@ -637,6 +637,7 @@
             { limit: 30, title: "위험 (High Risk)", icon: "🤮", desc: "당분 과다! 가당음료와 믹스커피를 줄이세요." },
             { limit: 60, title: "주의 (Caution)", icon: "😵‍💫", desc: "믹스커피 섭취를 블랙커피로 바꿔보세요." },
             { limit: 85, title: "양호 (Good)", icon: "🙂", desc: "좋습니다. 수분 섭취를 유지하세요." },
+            { limit: 99, title: "양호 (Good)", icon: "💗", desc: "좋습니다. 수분 섭취를 유지하세요." },
             { limit: 101, title: "최적 (Optimal)", icon: "🫘", desc: "신장 건강에 가장 이상적인 패턴입니다!" }
         ];
 
