@@ -511,6 +511,7 @@
             audio.play().catch(e => {
                 // Ignore initial play error if needed, usually requires gesture
                 console.log("Audio play failed, user gesture needed:", e);
+                alert("브라우저 정책상 재생을 위해 화면을 한 번 클릭해주세요.");
             });
             musicTitle.innerText = tracks[type].title;
             musicGenre.innerText = tracks[type].genre;
