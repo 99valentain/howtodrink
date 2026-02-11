@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>2026 how to : Researcher Haneulssi</title>
+    <title>2026 연구노트 포트폴리오: Researcher Haneulssi</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -412,7 +412,7 @@
                     <div class="flex-shrink-0 w-8 h-8 rounded-full bg-indigo-500/10 flex items-center justify-center text-sm border border-indigo-500/20">👩‍💻</div>
                     <div class="glass-panel p-3.5 rounded-tl-none text-xs opacity-90 leading-relaxed max-w-[88%] shadow-sm">
                         안녕하세요! <strong>Researcher haneulssi</strong>입니다.<br><br>
-                        2025-2026 연구노트 내용을 바탕으로 답변해 드립니다.<br>
+                        2025-2026 연구노트와 선행 논문을 모두 학습했습니다.<br>
                         궁금한 점을 아래 칩에서 선택하거나 직접 입력해주세요! 📚
                     </div>
                 </div>
@@ -420,7 +420,7 @@
             
             <!-- Quick Chips & Input Area -->
             <div class="p-4 border-t border-gray-500/10 bg-gray-500/5 backdrop-blur-md flex flex-col gap-3">
-                <p class="text-[10px] opacity-50 font-bold ml-1 uppercase tracking-wider">Tap to ask:</p>
+                <p class="text-[10px] opacity-50 mb-3 font-bold ml-1 uppercase tracking-wider">Tap to ask:</p>
                 <div class="flex flex-col gap-2.5">
                     <div class="flex gap-2 overflow-x-auto hide-scrollbar pb-1">
                         <button onclick="askAI('method')" class="suggestion-chip flex-shrink-0 px-3 py-2 bg-indigo-500/10 hover:bg-indigo-500/20 text-[11px] font-bold rounded-xl border border-indigo-500/20 text-indigo-500">🔬 연구 방법</button>
@@ -429,10 +429,9 @@
                     </div>
                     <div class="flex gap-2 overflow-x-auto hide-scrollbar pb-1">
                         <button onclick="askAI('mechanism')" class="suggestion-chip flex-shrink-0 px-3 py-2 bg-purple-500/10 hover:bg-purple-500/20 text-[11px] font-bold rounded-xl border border-purple-500/20 text-purple-500">🧬 작용 기전</button>
-                        <button onclick="askAI('diabetes')" class="suggestion-chip flex-shrink-0 px-3 py-2 bg-rose-500/10 hover:bg-rose-500/20 text-[11px] font-bold rounded-xl border border-rose-500/20 text-rose-500">🩸 당뇨 환자 위험성</button>
+                        <button onclick="askAI('diabetes')" class="suggestion-chip flex-shrink-0 px-3 py-2 bg-rose-500/10 hover:bg-rose-500/20 text-[11px] font-bold rounded-xl border border-rose-500/20 text-rose-500">🩸 당뇨 환자</button>
                         <button onclick="askAI('gender')" class="suggestion-chip flex-shrink-0 px-3 py-2 bg-blue-500/10 hover:bg-blue-500/20 text-[11px] font-bold rounded-xl border border-blue-500/20 text-blue-500">👫 성별 차이</button>
                         <button onclick="askAI('conclusion')" class="suggestion-chip flex-shrink-0 px-3 py-2 bg-slate-500/10 hover:bg-slate-500/20 text-[11px] font-bold rounded-xl border border-slate-500/20 opacity-70">📑 결론 요약</button>
-                        <button onclick="askAI('limitation')" class="suggestion-chip flex-shrink-0 px-3 py-2 bg-slate-500/10 hover:bg-slate-500/20 text-[11px] font-bold rounded-xl border border-slate-500/20 opacity-70">🚧 연구의 한계</button>
                     </div>
                 </div>
                 
@@ -472,6 +471,9 @@
     </div>
 
     <script>
+        // --- Configuration ---
+        const GEMINI_API_KEY = "AIzaSyDUbyxJarLwFPXHnM7y3nSSeNdrJ0-BSSU"; // User Provided Key
+
         // --- Theme Logic ---
         let isDarkMode = false; 
         const body = document.body;
@@ -507,7 +509,9 @@
 
         function playMusic(type) {
             audio.src = tracks[type].src;
-            var playPromise = audio.play();
+            // Explicit user interaction required for audio playback
+            const playPromise = audio.play();
+            
             if (playPromise !== undefined) {
                 playPromise.then(_ => {
                     musicTitle.innerText = tracks[type].title;
@@ -515,8 +519,8 @@
                     musicPlayerDiv.classList.add('playing');
                 })
                 .catch(error => {
-                    // This error is expected if user hasn't interacted with page yet.
-                    console.log("Audio play failed, waiting for user gesture:", error);
+                    console.log("Audio play prevented:", error);
+                    alert("음악 재생을 위해 화면을 한 번 터치해주세요.");
                 });
             }
         }
@@ -527,33 +531,64 @@
             musicPlayerDiv.classList.remove('playing');
         }
 
-        // --- Knowledge Base & Chat Logic ---
-        const knowledgeBase = {
-            'method': `<strong>[연구 설계]</strong> KNHANES 제9기(2022-2024) 데이터를 활용하며, 만 19-64세 성인을 대상으로 합니다. 신장 기능은 CKD-EPI (2021) 공식을 통해 산출된 eGFR로 평가하며, 복합표본 다중회귀분석을 수행합니다.`,
-            'coffee_diff': `<strong>[커피 유형별 차이]</strong> 블랙커피는 항산화 성분(폴리페놀)으로 인해 신장 보호 효과가 기대되나, 믹스커피는 설탕과 프림으로 인한 대사증후군 위험 증가로 신장에 부정적일 수 있다는 가설을 검증합니다.`,
-            'tea_timing': `<strong>[차 섭취 타이밍]</strong> 11월 연구노트에 따르면, 신장 대사 활동이 활발한 '오전 시간대(새벽~정오)'에 차를 섭취할 경우 eGFR 유지에 가장 긍정적인 영향을 미치는 것으로 나타났습니다.`,
-            'mechanism': `<strong>[작용 기전]</strong> 커피의 클로로겐산은 산화 스트레스를 줄이고, 카페인은 아데노신 수용체를 차단하여 신장의 산소 소비를 조절합니다. 반면 과당(Fructose)은 요산을 증가시켜 해롭습니다.`,
-            'diabetes': `<strong>[당뇨 환자]</strong> Tang et al. (2024) 연구에 따르면, 당뇨 환자는 기상 후 1시간 이내에 커피를 섭취했을 때 신장 보호 효과가 가장 컸습니다. 단, 믹스커피는 혈당 관리에 치명적일 수 있습니다.`,
-            'gender': `<strong>[성별 차이]</strong> 여성은 에스트로겐이 카페인 대사를 지연시켜 체내 농도를 유지하고, 신장 조직의 산화 손상을 방어하는 호르몬 효과로 인해 남성보다 뚜렷한 이점을 보일 수 있습니다.`,
-            'conclusion': `<strong>[잠정 결론]</strong> '적절한 블랙커피(하루 2-3잔)'와 '오전의 차 한 잔'은 신장 건강에 유익할 수 있으나, 가당음료와 믹스커피는 명백한 위험 인자입니다.`,
-            'limitation': `<strong>[한계점]</strong> 단면 연구(Cross-sectional) 특성상 인과관계 증명이 어렵고, 설문(FFQ)에 의존한 섭취량 조사는 기억 편향(Recall Bias)이 발생할 수 있습니다.`
-        };
+        // --- AI Logic (Gemini API) ---
+        const systemPrompt = `
+            당신은 '조하늘 연구원(Researcher Haneulssi)'의 AI 어시스턴트입니다.
+            2025년 9월부터 2026년 1월까지 작성된 연구노트와 선행 논문을 바탕으로 답변하세요.
+            
+            [핵심 연구 내용]
+            1. 주제: 한국 성인의 음료 섭취(커피, 차, 가당음료)가 신장 기능(eGFR)에 미치는 영향.
+            2. 데이터: KNHANES 제9기 (2022-2024). 대상: 19-64세 성인.
+            3. 가설: 블랙커피는 항산화 성분으로 신장에 긍정적이나, 믹스커피(설탕/프림)는 대사 위험으로 부정적일 것임.
+            4. 차(Tea): 오전 시간대(새벽~정오) 섭취가 신장 대사 리듬과 일치하여 eGFR 유지에 가장 효과적임.
+            5. 당뇨 환자: 기상 후 1시간 이내 커피 섭취가 신장 보호에 유리할 수 있음 (Tang et al. 2024). 단, 믹스커피는 금물.
+            
+            답변 스타일: 전문적이지만 친절하게, 연구원 조하늘의 관점에서 설명하세요. 한국어를 사용하세요.
+            이모지를 적절히 사용하여 가독성을 높이세요.
+        `;
 
-        function askAI(key) {
-            const chatWindow = document.getElementById('chat-window');
+        async function callGemini(query) {
+            if (!GEMINI_API_KEY) return "API 키가 설정되지 않았습니다.";
+            
+            try {
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${GEMINI_API_KEY}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: query }] }],
+                        systemInstruction: { parts: [{ text: systemPrompt }] }
+                    })
+                });
+                
+                const data = await response.json();
+                if (data.candidates && data.candidates[0].content) {
+                    return marked.parse(data.candidates[0].content.parts[0].text);
+                } else {
+                    return "응답을 생성할 수 없습니다.";
+                }
+            } catch (e) {
+                console.error(e);
+                return "네트워크 오류가 발생했습니다. 잠시 후 다시 시도해주세요.";
+            }
+        }
+
+        async function askAI(key) {
             const userTexts = {
                 'method': "연구 데이터와 방법론은?", 'coffee_diff': "믹스커피와 블랙커피의 차이는?", 'tea_timing': "차는 언제 마시는 게 좋아?",
                 'mechanism': "어떤 원리로 신장에 좋아?", 'diabetes': "당뇨 환자에게는 어때?", 'gender': "남녀 차이가 있어?",
                 'conclusion': "그래서 결론이 뭐야?", 'limitation': "연구의 한계는?"
             };
             
-            addBubble(userTexts[key] || "질문", "user");
-            simulateTyping(() => {
-                addBubble(knowledgeBase[key], "ai");
-            });
+            const query = userTexts[key];
+            addBubble(query, "user");
+            
+            const loadingId = showLoading();
+            const reply = await callGemini(query);
+            removeLoading(loadingId);
+            addBubble(reply, "ai");
         }
 
-        function sendUserQuery() {
+        async function sendUserQuery() {
             const input = document.getElementById('user-input');
             const text = input.value.trim();
             if(!text) return;
@@ -561,17 +596,10 @@
             addBubble(text, "user");
             input.value = "";
             
-            simulateTyping(() => {
-                let response = "죄송합니다. 현재 학습된 2025-2026년 연구노트 범위 내에서 관련된 내용을 찾지 못했습니다. 위의 칩을 눌러보세요!";
-                // Simple keyword matching
-                if(text.includes("당뇨")) response = knowledgeBase['diabetes'];
-                else if(text.includes("믹스") || text.includes("블랙")) response = knowledgeBase['coffee_diff'];
-                else if(text.includes("차") || text.includes("녹차") || text.includes("시간")) response = knowledgeBase['tea_timing'];
-                else if(text.includes("방법") || text.includes("데이터")) response = knowledgeBase['method'];
-                else if(text.includes("여자") || text.includes("남자") || text.includes("성별")) response = knowledgeBase['gender'];
-                
-                addBubble(response, "ai");
-            });
+            const loadingId = showLoading();
+            const reply = await callGemini(text);
+            removeLoading(loadingId);
+            addBubble(reply, "ai");
         }
 
         function addBubble(text, type) {
@@ -585,7 +613,7 @@
             const html = `
                 <div class="flex gap-3 chat-bubble ${align}">
                     ${icon}
-                    <div class="${bg} p-3.5 rounded-2xl ${radius} max-w-[88%] ${isUser ? 'text-xs font-medium' : ''}">
+                    <div class="${bg} p-3.5 rounded-2xl ${radius} max-w-[88%] ${isUser ? 'text-xs font-medium' : ''} prose prose-invert prose-p:my-1 prose-headings:my-2">
                         ${text}
                     </div>
                 </div>`;
@@ -593,7 +621,7 @@
             chatWindow.scrollTop = chatWindow.scrollHeight;
         }
 
-        function simulateTyping(callback) {
+        function showLoading() {
             const chatWindow = document.getElementById('chat-window');
             const id = 'typing-' + Date.now();
             chatWindow.insertAdjacentHTML('beforeend', `
@@ -608,21 +636,108 @@
                     </div>
                 </div>`);
             chatWindow.scrollTop = chatWindow.scrollHeight;
-            setTimeout(() => {
-                document.getElementById(id).remove();
-                callback();
-            }, 600 + Math.random() * 400);
+            return id;
         }
 
-        // --- Charts & Slider ---
-        let doseChart;
-        function initCharts() {
-            initDoseChart();
-            initBubbleChart();
+        function removeLoading(id) {
+            const el = document.getElementById(id);
+            if(el) el.remove();
         }
+
+        // --- Simulator Logic ---
+        const counts = { black: 0, tea: 0, mix: 0, ssb: 0 };
+        const states = [
+            { limit: 30, title: "위험 (High Risk)", icon: "🤮", desc: "당분 과다! 가당음료와 믹스커피를 줄이세요." },
+            { limit: 60, title: "주의 (Caution)", icon: "😵‍💫", desc: "믹스커피 섭취를 블랙커피로 바꿔보세요." },
+            { limit: 85, title: "양호 (Good)", icon: "🙂", desc: "좋습니다. 수분 섭취를 유지하세요." },
+            { limit: 101, title: "최적 (Optimal)", icon: "🫘", desc: "신장 건강에 가장 이상적인 패턴입니다!" }
+        ];
+
+        window.addDrink = (t) => { 
+            counts[t]++;
+            updateUI(t);
+            showFloatingScore(t === 'tea' ? '+3' : t === 'black' ? '+2' : t === 'mix' ? '-5' : '-10', t);
+            animateChar(t); // Ensure animation plays on click
+        };
+
+        window.removeDrink = (t, e) => {
+            if(e) e.stopPropagation();
+            if(counts[t] > 0) {
+                counts[t]--;
+                updateUI(t);
+                animateChar('remove');
+            }
+        };
+        
+        window.resetDrinks = () => { for(let k in counts) counts[k]=0; updateUI(); };
+        window.pokeKidney = () => { animateChar('poke'); };
+
+        function showFloatingScore(text, type) {
+            const container = document.getElementById('score-float-container');
+            const el = document.createElement('div');
+            el.className = 'floating-score';
+            el.innerText = text;
+            
+            if(type==='tea') el.style.color='#10B981';
+            else if(type==='black') el.style.color='#6366F1';
+            else if(type==='mix') el.style.color='#F59E0B';
+            else el.style.color='#F43F5E';
+            
+            container.appendChild(el);
+            setTimeout(() => el.remove(), 800);
+        }
+
+        function animateChar(type) {
+            const char = document.getElementById('kidney-char');
+            // Reset to allow re-triggering
+            char.style.animation = 'none';
+            void char.offsetWidth; // Trigger reflow
+            char.style.animation = null; 
+            
+            char.classList.remove('animate__headShake', 'animate__rubberBand', 'animate__wobble');
+            
+            if(type === 'mix' || type === 'ssb') char.classList.add('animate__headShake');
+            else if(type === 'remove') char.classList.add('animate__wobble');
+            else char.classList.add('animate__rubberBand');
+        }
+
+        function updateUI(t) {
+            if(t) document.getElementById(`count-${t}`).innerText = counts[t] + "잔";
+            else document.querySelectorAll('[id^="count-"]').forEach(e=>e.innerText='0잔');
+            
+            let score = 100 + (counts.black*2) + (counts.tea*3) - (counts.mix*5) - (counts.ssb*10);
+            if(document.getElementById('check-diabetes').checked) score -= (counts.mix*2 + counts.ssb*5);
+            score = Math.max(0, Math.min(100, score));
+            
+            // Find state
+            const s = states.find(s => score < s.limit) || states[3];
+            
+            // Update Text & Icon
+            document.getElementById('score-val').innerText = score + "점";
+            document.getElementById('status-badge').innerText = s.title;
+            document.getElementById('status-desc').innerText = s.desc;
+            document.getElementById('kidney-char').innerText = s.icon; // Update Emoji
+            
+            const bar = document.getElementById('health-bar');
+            bar.style.width = `${score}%`;
+            
+            // Color Logic
+            let colorClass = 'from-emerald-500 to-teal-400';
+            if(score < 30) colorClass = 'from-rose-600 to-red-500';
+            else if(score < 60) colorClass = 'from-amber-500 to-orange-400';
+            else if(score < 85) colorClass = 'from-blue-500 to-indigo-400';
+            
+            bar.className = `h-full w-full transition-all duration-500 relative bg-gradient-to-r ${colorClass}`;
+        }
+        
+        window.updateKidneyStatus = () => updateUI();
+
+        // --- Charts & Particles ---
+        // (Existing Chart & Particle logic maintained below)
+        let doseChart;
+        function initCharts() { initDoseChart(); initBubbleChart(); }
 
         function initBubbleChart() {
-            // Same data logic as before
             const papers = [
                 { author: "Mazidi", year: 2022, n: 12385, type: "Cross", text: "NHANES (MR)" },
                 { author: "Gao", year: 2025, n: 49827, type: "Cross", text: "NHANES" },
@@ -692,79 +807,6 @@
             doseChart.update();
         });
 
-        // --- Simulator Logic ---
-        const counts = { black: 0, tea: 0, mix: 0, ssb: 0 };
-        const states = [
-            { limit: 30, title: "위험 (High Risk)", color: "from-rose-600 to-red-500", desc: "당분 과다! 가당음료와 믹스커피를 줄이세요." },
-            { limit: 60, title: "주의 (Caution)", color: "from-amber-500 to-orange-400", desc: "믹스커피 섭취를 블랙커피로 바꿔보세요." },
-            { limit: 85, title: "양호 (Good)", color: "from-blue-500 to-indigo-400", desc: "좋습니다. 수분 섭취를 유지하세요." },
-            { limit: 101, title: "최적 (Optimal)", color: "from-emerald-500 to-teal-400", desc: "신장 건강에 가장 이상적인 패턴입니다!" }
-        ];
-
-        window.addDrink = (t) => { 
-            counts[t]++;
-            animateChar(t);
-            updateUI(t); 
-            // Floating score logic
-            const pts = (t==='tea'?'+3': t==='black'?'+2': t==='mix'?'-5':'-10');
-            showFloatingScore(pts, t);
-        };
-        
-        window.removeDrink = (t, e) => {
-            if(e) e.stopPropagation();
-            if(counts[t] > 0) { counts[t]--; animateChar('remove'); updateUI(t); }
-        };
-        
-        window.resetDrinks = () => { for(let k in counts) counts[k]=0; updateUI(); };
-        window.pokeKidney = () => { animateChar('poke'); };
-
-        function showFloatingScore(text, type) {
-            const container = document.getElementById('score-float-container');
-            const el = document.createElement('div');
-            el.className = 'floating-score';
-            el.innerText = text;
-            
-            // Color based on type
-            if(type==='tea') el.style.color='#10B981';
-            else if(type==='black') el.style.color='#6366F1';
-            else if(type==='mix') el.style.color='#F59E0B';
-            else el.style.color='#F43F5E';
-            
-            container.appendChild(el);
-            setTimeout(() => el.remove(), 800);
-        }
-
-        function animateChar(type) {
-            const char = document.getElementById('kidney-char');
-            char.style.animation = 'none';
-            void char.offsetWidth; // Trigger reflow
-            char.style.animation = null; 
-            
-            char.classList.remove('animate__headShake', 'animate__rubberBand', 'animate__wobble');
-            if(type === 'mix' || type === 'ssb') char.classList.add('animate__headShake');
-            else if(type === 'remove') char.classList.add('animate__wobble');
-            else char.classList.add('animate__rubberBand');
-        }
-
-        function updateUI(t) {
-            if(t) document.getElementById(`count-${t}`).innerText = counts[t] + "잔";
-            else document.querySelectorAll('[id^="count-"]').forEach(e=>e.innerText='0잔');
-            
-            let score = 100 + (counts.black*2) + (counts.tea*3) - (counts.mix*5) - (counts.ssb*10);
-            if(document.getElementById('check-diabetes').checked) score -= (counts.mix*2 + counts.ssb*5);
-            score = Math.max(0, Math.min(100, score));
-            
-            const s = states.find(s => score < s.limit) || states[3];
-            document.getElementById('score-val').innerText = score + "점";
-            document.getElementById('status-badge').innerText = s.title;
-            document.getElementById('status-desc').innerText = s.desc;
-            
-            const bar = document.getElementById('health-bar');
-            bar.style.width = `${score}%`;
-            bar.className = `h-full w-full transition-all duration-500 relative bg-gradient-to-r ${s.color}`;
-        }
-        window.updateKidneyStatus = () => updateUI();
-
         // --- Particles ---
         const particleCtx = particleCanvas.getContext('2d');
         let width, height, particles = [], animationFrameId;
@@ -820,6 +862,7 @@
         // Init
         initCharts();
         initParticles('sakura'); 
+        updateUI(); // Initial UI update
     </script>
 </body>
 </html>
