@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>2026: Researcher Haneulssi</title>
+    <title>2026 연구노트 포트폴리오: Researcher Haneulssi</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -27,7 +27,7 @@
 
     <style>
         :root {
-            /* Day Theme (Sakura - Default) */
+            /* Day Theme (Sakura) */
             --bg-color: #FFF1F2;
             --text-color: #4A044E;
             --card-bg: rgba(255, 255, 255, 0.7);
@@ -412,7 +412,7 @@
                     <div class="flex-shrink-0 w-8 h-8 rounded-full bg-indigo-500/10 flex items-center justify-center text-sm border border-indigo-500/20">👩‍💻</div>
                     <div class="glass-panel p-3.5 rounded-tl-none text-xs opacity-90 leading-relaxed max-w-[88%] shadow-sm">
                         안녕하세요! <strong>Researcher haneulssi</strong>입니다.<br><br>
-                        2025-2026 연구노트와 선행 논문을 모두 학습했습니다.<br>
+                        2025-2026 연구노트 내용을 바탕으로 답변해 드립니다.<br>
                         궁금한 점을 아래 칩에서 선택하거나 직접 입력해주세요! 📚
                     </div>
                 </div>
@@ -429,7 +429,7 @@
                     </div>
                     <div class="flex gap-2 overflow-x-auto hide-scrollbar pb-1">
                         <button onclick="askAI('mechanism')" class="suggestion-chip flex-shrink-0 px-3 py-2 bg-purple-500/10 hover:bg-purple-500/20 text-[11px] font-bold rounded-xl border border-purple-500/20 text-purple-500">🧬 작용 기전</button>
-                        <button onclick="askAI('diabetes')" class="suggestion-chip flex-shrink-0 px-3 py-2 bg-rose-500/10 hover:bg-rose-500/20 text-[11px] font-bold rounded-xl border border-rose-500/20 text-rose-500">🩸 당뇨 환자</button>
+                        <button onclick="askAI('diabetes')" class="suggestion-chip flex-shrink-0 px-3 py-2 bg-rose-500/10 hover:bg-rose-500/20 text-[11px] font-bold rounded-xl border border-rose-500/20 text-rose-500">🩸 당뇨 환자 위험성</button>
                         <button onclick="askAI('gender')" class="suggestion-chip flex-shrink-0 px-3 py-2 bg-blue-500/10 hover:bg-blue-500/20 text-[11px] font-bold rounded-xl border border-blue-500/20 text-blue-500">👫 성별 차이</button>
                         <button onclick="askAI('conclusion')" class="suggestion-chip flex-shrink-0 px-3 py-2 bg-slate-500/10 hover:bg-slate-500/20 text-[11px] font-bold rounded-xl border border-slate-500/20 opacity-70">📑 결론 요약</button>
                     </div>
@@ -502,6 +502,7 @@
         const musicGenre = document.getElementById('music-genre');
         const musicPlayerDiv = document.querySelector('.music-player');
 
+        // Using reliable MP3/OGG links.
         const tracks = {
             'spring': { src: "https://upload.wikimedia.org/wikipedia/commons/3/3c/Antonio_Vivaldi_-_Spring_mvt_1_Allegro_-_John_Harrison_violin.ogg", title: "Vivaldi: Spring", genre: "Upbeat Classic" },
             'mozart': { src: "https://upload.wikimedia.org/wikipedia/commons/2/28/Wolfgang_Amadeus_Mozart_-_Eine_kleine_Nachtmusik_-_1._Allegro.ogg", title: "Mozart: Nachtmusik", genre: "Energetic Classic" } 
@@ -509,21 +510,37 @@
 
         function playMusic(type) {
             audio.src = tracks[type].src;
-            musicTitle.innerText = tracks[type].title;
+            audio.volume = 0.5; // Set volume to 50%
+            musicTitle.innerText = "Loading...";
             musicGenre.innerText = tracks[type].genre;
-            musicPlayerDiv.classList.add('playing');
             
-            // Standard play attempt
-            audio.play().catch(e => {
-                console.log("Audio play failed:", e);
-                // No alert needed, user just clicked the button
-            });
+            audio.oncanplay = () => {
+                musicTitle.innerText = tracks[type].title;
+                musicPlayerDiv.classList.add('playing');
+                disc.style.animationPlayState = 'running';
+            };
+
+            const playPromise = audio.play();
+            if (playPromise !== undefined) {
+                playPromise.then(() => {
+                    // Success
+                    musicTitle.innerText = tracks[type].title;
+                    musicPlayerDiv.classList.add('playing');
+                    disc.style.animationPlayState = 'running';
+                })
+                .catch(error => {
+                    console.log("Audio Error:", error);
+                    // Usually this catches user interaction policy errors
+                    // No alert needed, as this function is called via onclick
+                });
+            }
         }
 
         function stopMusic() {
             audio.pause();
             musicTitle.innerText = "Music Paused";
             musicPlayerDiv.classList.remove('playing');
+            disc.style.animationPlayState = 'paused';
         }
 
         // --- AI Logic (Real Gemini API) ---
@@ -708,6 +725,7 @@
 
         function animateChar(type) {
             const char = document.getElementById('kidney-char');
+            // Reset to allow re-triggering
             char.style.animation = 'none';
             void char.offsetWidth; // Trigger reflow
             char.style.animation = null; 
@@ -728,12 +746,19 @@
             score = Math.max(0, Math.min(100, score));
             
             // Find state based on updated score
-            const s = states.find(s => score < s.limit) || states[3];
+            // Fixed Logic: Check if score is LESS than limit
+            let s = states[3]; // Default to optimal
+            for (let i = 0; i < states.length; i++) {
+                if (score < states[i].limit) {
+                    s = states[i];
+                    break;
+                }
+            }
             
             document.getElementById('score-val').innerText = score + "점";
             document.getElementById('status-badge').innerText = s.title;
             document.getElementById('status-desc').innerText = s.desc;
-            document.getElementById('kidney-char').innerText = s.icon; // **Crucial Fix: Update Emoji**
+            document.getElementById('kidney-char').innerText = s.icon; // Update Emoji
             
             const bar = document.getElementById('health-bar');
             bar.style.width = `${score}%`;
